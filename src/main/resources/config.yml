@@ -1,0 +1,19 @@
+Direct:
+  Debug: false
+  DataSource:
+    Host: localhost
+    Port: 3306
+    Database: direct
+    Username: root
+    Password: password
+  Messages:
+    Connect: "&8You have been connected to &b[SERVER]"
+    Disconnect: "&8You have been disconnected: &f[REASON]"
+    Error: "&8An unexpected error occurred"
+    Fail: "&8Unable to find suitable server"
+    Inactive: "&b[SERVER] &8is not active"
+    Incompatible: "&b[SERVER] &8does not support your Minecraft version"
+    Kick: "&8You have been moved to &b[SERVER]&8: &f[REASON]"
+    Removed: "&b[SERVER] &8is no longer publicly available"
+    Restricted: "&8You do not have permission to join &b[SERVER]"
+    Timeout: "Timed out"

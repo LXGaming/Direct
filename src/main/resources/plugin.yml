@@ -1,0 +1,14 @@
+name: ${name}
+main: nz.co.lolnet.direct.Direct
+version: ${version}
+description: description.
+author: LX_Gaming
+website: https://lxgaming.github.io/
+commands:
+  Direct:
+    description: Main plugin command.
+    usage: /<command>
+    aliases: [Direct]
+permissions:
+  direct.admin:
+    description: Reload direct.
