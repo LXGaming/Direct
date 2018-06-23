@@ -22,7 +22,6 @@ import nz.co.lolnet.direct.Direct;
 import nz.co.lolnet.direct.util.Toolbox;
 
 import java.net.InetSocketAddress;
-import java.util.Optional;
 import java.util.Set;
 
 public class ServerData {
@@ -37,27 +36,27 @@ public class ServerData {
     private boolean lobby;
     private boolean restricted;
     
-    public Optional<ServerInfo> buildServerInfo() {
+    public ServerInfo buildServerInfo() {
         if (Toolbox.isBlank(getName())) {
             Direct.getInstance().getLogger().warning("Cannot build ServerInfo as the name is blank");
-            return Optional.empty();
+            return null;
         }
         
         if (Toolbox.isBlank(getHost()) || port < 0 || port > 65535) {
             Direct.getInstance().getLogger().warning("Cannot build ServerInfo for " + getName() + " as the address is invalid");
-            return Optional.empty();
+            return null;
         }
         
         if (!isActive()) {
-            return Optional.empty();
+            return null;
         }
         
         InetSocketAddress address = Toolbox.parseAddress(getHost(), getPort()).orElse(null);
         if (address != null) {
-            return Optional.of(ProxyServer.getInstance().constructServerInfo(getName(), address, Toolbox.convertColor(getMotd()), isRestricted()));
+            return ProxyServer.getInstance().constructServerInfo(getName(), address, Toolbox.convertColor(getMotd()), isRestricted());
         } else {
             Direct.getInstance().getLogger().warning("Cannot build ServerInfo for " + getName() + " as the address couldn't be parsed");
-            return Optional.empty();
+            return null;
         }
     }
     

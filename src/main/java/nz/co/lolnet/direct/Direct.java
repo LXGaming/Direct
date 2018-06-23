@@ -21,9 +21,12 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import nz.co.lolnet.direct.commands.DirectCommand;
 import nz.co.lolnet.direct.commands.LobbyCommand;
+import nz.co.lolnet.direct.commands.ModListCommand;
 import nz.co.lolnet.direct.configuration.Config;
 import nz.co.lolnet.direct.listeners.DirectListener;
+import nz.co.lolnet.direct.managers.ModManager;
 import nz.co.lolnet.direct.managers.ServerManager;
+import nz.co.lolnet.direct.storage.mysql.MySQLQuery;
 import nz.co.lolnet.direct.util.Reference;
 
 import java.util.Optional;
@@ -40,6 +43,7 @@ public class Direct extends Plugin {
         reload();
         getProxy().getPluginManager().registerCommand(getInstance(), new DirectCommand());
         getProxy().getPluginManager().registerCommand(getInstance(), new LobbyCommand());
+        getProxy().getPluginManager().registerCommand(getInstance(), new ModListCommand());
         getProxy().getPluginManager().registerListener(getInstance(), new DirectListener());
         getLogger().info(Reference.PLUGIN_NAME + " v" + Reference.PLUGIN_VERSION + " loaded");
     }
@@ -57,7 +61,7 @@ public class Direct extends Plugin {
         }
         
         Stopwatch stopwatch = Stopwatch.createStarted();
-        if (ServerManager.prepareServers()) {
+        if (MySQLQuery.createTables() && ModManager.prepareMods() && ServerManager.prepareServers()) {
             ServerManager.registerServers();
             getLogger().info("Successful build after " + stopwatch.stop().elapsed(TimeUnit.MILLISECONDS) + "ms");
             return true;

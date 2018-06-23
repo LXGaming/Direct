@@ -28,7 +28,6 @@ import nz.co.lolnet.direct.util.Toolbox;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 
 public class ServerManager {
@@ -37,11 +36,7 @@ public class ServerManager {
     private static final List<ServerData> SERVERS = Collections.synchronizedList(Toolbox.newArrayList());
     
     public static boolean prepareServers() {
-        if (!MySQLQuery.createTable()) {
-            return false;
-        }
-        
-        List<ServerData> servers = MySQLQuery.getServers().orElse(null);
+        List<ServerData> servers = MySQLQuery.getServers();
         if (servers == null || servers.isEmpty()) {
             return false;
         }
@@ -57,7 +52,7 @@ public class ServerManager {
         Map<String, String> forcedHosts = Toolbox.newHashMap();
         
         for (ServerData serverData : getServers()) {
-            ServerInfo serverInfo = serverData.buildServerInfo().orElse(null);
+            ServerInfo serverInfo = serverData.buildServerInfo();
             if (serverInfo == null) {
                 continue;
             }
@@ -85,7 +80,7 @@ public class ServerManager {
             listenerInfo.getForcedHosts().putAll(forcedHosts);
         }
         
-        Direct.getInstance().getLogger().info("Successfully registered " + proxyServers.size() + " Servers.");
+        Direct.getInstance().getLogger().info("Successfully registered " + proxyServers.size() + " Servers");
     }
     
     public static boolean isAccessible(ServerData serverData, ProxiedPlayer proxiedPlayer) {
@@ -96,7 +91,7 @@ public class ServerManager {
         return serverData.getProtocolVersions().isEmpty() || serverData.getProtocolVersions().contains(proxiedPlayer.getPendingConnection().getVersion());
     }
     
-    public static Optional<ServerInfo> getLobby(ProxiedPlayer proxiedPlayer) {
+    public static ServerInfo getLobby(ProxiedPlayer proxiedPlayer) {
         List<ServerInfo> servers = Toolbox.newArrayList();
         for (ServerData serverData : getServers()) {
             if (!serverData.isActive() || !serverData.isLobby() || !isAccessible(serverData, proxiedPlayer) || !isProtocolSupported(serverData, proxiedPlayer)) {
@@ -110,20 +105,20 @@ public class ServerManager {
         }
         
         if (!servers.isEmpty()) {
-            return Optional.of(servers.get(getRandom().nextInt(servers.size())));
+            return servers.get(getRandom().nextInt(servers.size()));
         }
         
-        return Optional.empty();
+        return null;
     }
     
-    public static Optional<ServerData> getServer(String name) {
+    public static ServerData getServer(String name) {
         for (ServerData serverData : getServers()) {
             if (serverData.isActive() && Toolbox.isNotBlank(serverData.getName()) && serverData.getName().equals(name)) {
-                return Optional.of(serverData);
+                return serverData;
             }
         }
         
-        return Optional.empty();
+        return null;
     }
     
     public static Random getRandom() {

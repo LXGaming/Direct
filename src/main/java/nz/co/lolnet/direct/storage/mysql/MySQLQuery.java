@@ -17,19 +17,25 @@
 package nz.co.lolnet.direct.storage.mysql;
 
 import nz.co.lolnet.direct.Direct;
+import nz.co.lolnet.direct.data.ModData;
 import nz.co.lolnet.direct.data.ServerData;
 import nz.co.lolnet.direct.util.Toolbox;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public class MySQLQuery {
     
-    public static boolean createTable() {
+    public static boolean createTables() {
         try (MySQLStorageAdapter storageAdapter = new MySQLStorageAdapter()) {
+            storageAdapter.createConnection().prepareStatement("CREATE TABLE IF NOT EXISTS `mod` (" +
+                    "`id` VARCHAR(255) NOT NULL," +
+                    "`name` VARCHAR(255) DEFAULT NULL," +
+                    "`execution` TEXT DEFAULT NULL," +
+                    "PRIMARY KEY (`id`));");
+            storageAdapter.execute();
+            
             storageAdapter.createConnection().prepareStatement("CREATE TABLE IF NOT EXISTS `server` (" +
                     "`name` VARCHAR(255) NOT NULL," +
                     "`host` VARCHAR(255) NOT NULL DEFAULT ?," +
@@ -50,17 +56,38 @@ public class MySQLQuery {
             storageAdapter.execute();
             return true;
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().severe("Encountered an error processing MySQLQuery::createTable");
+            Direct.getInstance().getLogger().severe("Encountered an error processing MySQLQuery::createTables");
             ex.printStackTrace();
             return false;
         }
     }
     
-    public static Optional<List<ServerData>> getServers() {
+    public static List<ModData> getMods() {
+        try (MySQLStorageAdapter storageAdapter = new MySQLStorageAdapter()) {
+            storageAdapter.createConnection().prepareStatement("SELECT * FROM `mod`");
+            ResultSet resultSet = storageAdapter.execute();
+            List<ModData> mods = Toolbox.newArrayList();
+            while (resultSet.next()) {
+                ModData modData = new ModData();
+                modData.setId(resultSet.getString("id"));
+                modData.setName(resultSet.getString("name"));
+                modData.setExecution(Toolbox.buildElements(resultSet.getString("execution"), String.class).orElse(Toolbox.newHashSet()));
+                mods.add(modData);
+            }
+            
+            Direct.getInstance().getLogger().info("Found " + mods.size() + " Mods in MySQL");
+            return mods;
+        } catch (SQLException ex) {
+            Direct.getInstance().getLogger().severe("Encountered an error processing MySQLQuery::getMods");
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    
+    public static List<ServerData> getServers() {
         try (MySQLStorageAdapter storageAdapter = new MySQLStorageAdapter()) {
             storageAdapter.createConnection().prepareStatement("SELECT * FROM `server`");
             ResultSet resultSet = storageAdapter.execute();
-            Objects.requireNonNull(resultSet, "ResultSet is null");
             List<ServerData> servers = Toolbox.newArrayList();
             while (resultSet.next()) {
                 ServerData serverData = new ServerData();
@@ -76,12 +103,12 @@ public class MySQLQuery {
                 servers.add(serverData);
             }
             
-            Direct.getInstance().debugMessage("Found " + servers.size() + " Servers in MySQL.");
-            return Optional.of(servers);
+            Direct.getInstance().getLogger().info("Found " + servers.size() + " Servers in MySQL");
+            return servers;
         } catch (SQLException ex) {
             Direct.getInstance().getLogger().severe("Encountered an error processing MySQLQuery::getServers");
             ex.printStackTrace();
-            return Optional.empty();
+            return null;
         }
     }
 }

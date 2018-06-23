@@ -1,7 +1,7 @@
 name: ${name}
 main: nz.co.lolnet.direct.Direct
 version: ${version}
-description: description.
+description: Server Manager
 author: LX_Gaming
 website: https://lxgaming.github.io/
 commands:
@@ -10,5 +10,11 @@ commands:
     usage: /<command>
     aliases: [Direct]
 permissions:
-  direct.admin:
-    description: Reload direct.
+  direct.bypass:
+    description: Bypass mod check
+  direct.command.lobby:
+    description: Connect to lobby
+  direct.command.modlist:
+    description: View players mods
+  direct.command.reload:
+    description: Reload direct

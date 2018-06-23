@@ -86,6 +86,22 @@ public class Toolbox {
         return !isBlank(charSequence);
     }
     
+    public static boolean containsIgnoreCase(String string, String searchString) {
+        if (string == null || searchString == null) {
+            return false;
+        }
+        
+        int length = searchString.length();
+        int max = string.length() - length;
+        for (int index = 0; index <= max; index++) {
+            if (string.regionMatches(true, index, searchString, 0, length)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     public static String convertColor(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }

@@ -29,7 +29,7 @@ import nz.co.lolnet.direct.util.Toolbox;
 public class LobbyCommand extends Command {
     
     public LobbyCommand() {
-        super("lobby", "", "hub");
+        super("lobby", "direct.command.lobby", "hub");
     }
     
     @Override
@@ -40,7 +40,7 @@ public class LobbyCommand extends Command {
         }
         
         ProxiedPlayer player = (ProxiedPlayer) sender;
-        ServerInfo serverInfo = ServerManager.getLobby(player).orElse(null);
+        ServerInfo serverInfo = ServerManager.getLobby(player);
         if (serverInfo != null) {
             player.connect(serverInfo);
             Direct.getInstance().debugMessage(player.getName() + " - " + player.getServer().getInfo().getName() + " -> " + serverInfo.getName());

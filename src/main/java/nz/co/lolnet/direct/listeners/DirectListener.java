@@ -26,6 +26,7 @@ import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import nz.co.lolnet.direct.data.Message;
 import nz.co.lolnet.direct.data.ServerData;
+import nz.co.lolnet.direct.managers.ModManager;
 import nz.co.lolnet.direct.managers.ServerManager;
 import nz.co.lolnet.direct.util.Toolbox;
 
@@ -35,7 +36,7 @@ public class DirectListener implements Listener {
     public void onServerConnect(ServerConnectEvent event) {
         ServerInfo target = event.getTarget();
         if (target != null) {
-            ServerData serverData = ServerManager.getServer(target.getName()).orElse(null);
+            ServerData serverData = ServerManager.getServer(target.getName());
             if (serverData == null) {
                 Message.builder().type(Message.Type.ERROR).server(target.getName()).build().sendMessage(event.getPlayer());
                 target = null;
@@ -52,7 +53,7 @@ public class DirectListener implements Listener {
         }
         
         if (target == null) {
-            target = ServerManager.getLobby(event.getPlayer()).orElse(null);
+            target = ServerManager.getLobby(event.getPlayer());
         }
         
         if (target != null) {
@@ -66,14 +67,14 @@ public class DirectListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onServerConnected(ServerConnectedEvent event) {
-        // Message.builder().type(Message.Type.CONNECT).server(event.getServer().getInfo().getName()).build().sendMessage(event.getPlayer());
+        ModManager.checkPlayer(event.getPlayer());
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onServerKick(ServerKickEvent event) {
         String kickReason = TextComponent.toPlainText(event.getKickReasonComponent());
         if (Toolbox.isNotBlank(kickReason) && kickReason.equals(Message.Type.TIMEOUT.getMessage().orElse(""))) {
-            ServerData serverData = ServerManager.getServer(event.getKickedFrom().getName()).orElse(null);
+            ServerData serverData = ServerManager.getServer(event.getKickedFrom().getName());
             if (serverData != null && serverData.isLobby()) {
                 event.setCancelled(true);
                 Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build().disconnect(event.getPlayer());
@@ -81,7 +82,7 @@ public class DirectListener implements Listener {
             }
         }
         
-        ServerInfo serverInfo = ServerManager.getLobby(event.getPlayer()).orElse(null);
+        ServerInfo serverInfo = ServerManager.getLobby(event.getPlayer());
         if (serverInfo != null) {
             event.setCancelled(true);
             event.setCancelServer(serverInfo);

@@ -30,7 +30,7 @@ public class DirectCommand extends Command {
     
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (args.length == 1 && args[0].equalsIgnoreCase("reload") && sender.hasPermission("direct.admin")) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload") && sender.hasPermission("direct.command.reload")) {
             if (Direct.getInstance().reload()) {
                 sender.sendMessage(Toolbox.getTextPrefix().append("Configuration reloaded").color(ChatColor.GREEN).create());
             } else {
