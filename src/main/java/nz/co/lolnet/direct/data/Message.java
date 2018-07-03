@@ -31,8 +31,8 @@ public class Message {
         this.message = message;
     }
     
-    public static Message.Builder builder() {
-        return new Message.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
     
     public boolean disconnect(ProxiedPlayer proxiedPlayer) {

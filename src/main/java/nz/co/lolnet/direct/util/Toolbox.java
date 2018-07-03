@@ -66,6 +66,10 @@ public class Toolbox {
         componentBuilder.append(" ", ComponentBuilder.FormatRetention.NONE);
         return componentBuilder;
     }
+
+    public static String convertColor(String string) {
+        return ChatColor.translateAlternateColorCodes('&', string);
+    }
     
     public static boolean isBlank(CharSequence charSequence) {
         int stringLength;
@@ -100,10 +104,6 @@ public class Toolbox {
         }
         
         return false;
-    }
-    
-    public static String convertColor(String string) {
-        return ChatColor.translateAlternateColorCodes('&', string);
     }
     
     public static Optional<InetSocketAddress> parseAddress(String host, int port) {
@@ -158,16 +158,16 @@ public class Toolbox {
     }
     
     @SafeVarargs
-    public static <E> ArrayList<E> newArrayList(E... elements) throws NullPointerException {
+    public static <E> ArrayList<E> newArrayList(E... elements) {
         return Stream.of(elements).collect(Collectors.toCollection(ArrayList::new));
     }
     
     public static <K, V> HashMap<K, V> newHashMap() {
-        return new HashMap<K, V>();
+        return new HashMap<>();
     }
     
     @SafeVarargs
-    public static <E> HashSet<E> newHashSet(E... elements) throws NullPointerException {
+    public static <E> HashSet<E> newHashSet(E... elements) {
         return Stream.of(elements).collect(Collectors.toCollection(HashSet::new));
     }
 }
