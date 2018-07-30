@@ -64,10 +64,9 @@ public class DirectListener implements Listener {
         if (target != null && event.getTarget() != target) {
             event.setTarget(target);
             event.setCancelled(false);
-            return;
+        } else {
+            Message.builder().type(Message.Type.FAIL).build().disconnect(event.getPlayer());
         }
-        
-        Message.builder().type(Message.Type.FAIL).build().disconnect(event.getPlayer());
     }
     
     @EventHandler(priority = EventPriority.LOWEST)
@@ -81,7 +80,6 @@ public class DirectListener implements Listener {
         if (Toolbox.isNotBlank(kickReason) && kickReason.equals(Message.Type.TIMEOUT.getMessage().orElse(""))) {
             ServerData serverData = ServerManager.getServer(event.getKickedFrom().getName());
             if (serverData != null && serverData.isLobby()) {
-                event.setCancelled(true);
                 Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build().disconnect(event.getPlayer());
                 return;
             }
@@ -92,9 +90,8 @@ public class DirectListener implements Listener {
             event.setCancelled(true);
             event.setCancelServer(serverInfo);
             Message.builder().type(Message.Type.KICK).server(serverInfo.getName()).reason(kickReason).build().sendMessage(event.getPlayer());
-            return;
+        } else {
+            Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build().disconnect(event.getPlayer());
         }
-        
-        Message.builder().type(Message.Type.FAIL).build().sendMessage(event.getPlayer());
     }
 }
