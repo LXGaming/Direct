@@ -66,7 +66,7 @@ public class Toolbox {
         componentBuilder.append(" ", ComponentBuilder.FormatRetention.NONE);
         return componentBuilder;
     }
-
+    
     public static String convertColor(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }

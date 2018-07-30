@@ -6,7 +6,7 @@ targetCompatibility = 1.8
 
 group = "nz.co.lolnet"
 archivesBaseName = "Direct"
-version = "1.2.0"
+version = "1.2.1"
 
 configurations {
     provided {
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     provided("mysql:mysql-connector-java:5.1.46")
-    provided("net.md-5:bungeecord-api:1.12-SNAPSHOT")
+    provided("net.md-5:bungeecord-api:1.13-SNAPSHOT")
 }
 
 jar {

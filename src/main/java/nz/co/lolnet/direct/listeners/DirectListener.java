@@ -33,36 +33,41 @@ import nz.co.lolnet.direct.util.Toolbox;
 public class DirectListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onServerConnect(ServerConnectEvent event) {
-        ServerInfo target = event.getTarget();
-        if (target != null) {
-            ServerData serverData = ServerManager.getServer(target.getName());
+    public void onServerConnectPre(ServerConnectEvent event) {
+        if (event.getTarget() != null) {
+            ServerData serverData = ServerManager.getServer(event.getTarget().getName());
             if (serverData == null) {
-                Message.builder().type(Message.Type.ERROR).server(target.getName()).build().sendMessage(event.getPlayer());
-                target = null;
+                Message.builder().type(Message.Type.ERROR).server(event.getTarget().getName()).build().sendMessage(event.getPlayer());
+                event.setCancelled(true);
             } else if (!serverData.isActive()) {
-                Message.builder().type(Message.Type.INACTIVE).server(target.getName()).build().sendMessage(event.getPlayer());
-                target = null;
+                Message.builder().type(Message.Type.INACTIVE).server(event.getTarget().getName()).build().sendMessage(event.getPlayer());
+                event.setCancelled(true);
             } else if (!ServerManager.isAccessible(serverData, event.getPlayer())) {
-                Message.builder().type(Message.Type.RESTRICTED).server(target.getName()).build().sendMessage(event.getPlayer());
-                target = null;
+                Message.builder().type(Message.Type.RESTRICTED).server(event.getTarget().getName()).build().sendMessage(event.getPlayer());
+                event.setCancelled(true);
             } else if (!ServerManager.isProtocolSupported(serverData, event.getPlayer())) {
-                Message.builder().type(Message.Type.INCOMPATIBLE).server(target.getName()).build().sendMessage(event.getPlayer());
-                target = null;
+                Message.builder().type(Message.Type.INCOMPATIBLE).server(event.getTarget().getName()).build().sendMessage(event.getPlayer());
+                event.setCancelled(true);
             }
+        } else {
+            event.setCancelled(true);
         }
-        
-        if (target == null) {
-            target = ServerManager.getLobby(event.getPlayer());
-        }
-        
-        if (target != null) {
-            event.setTarget(target);
+    }
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onServerConnectPost(ServerConnectEvent event) {
+        if (!event.isCancelled() || !event.getPlayer().isConnected()) {
             return;
         }
         
-        Message.builder().type(Message.Type.FAIL).build().sendMessage(event.getPlayer());
-        event.setCancelled(true);
+        ServerInfo target = ServerManager.getLobby(event.getPlayer());
+        if (target != null && event.getTarget() != target) {
+            event.setTarget(target);
+            event.setCancelled(false);
+            return;
+        }
+        
+        Message.builder().type(Message.Type.FAIL).build().disconnect(event.getPlayer());
     }
     
     @EventHandler(priority = EventPriority.LOWEST)

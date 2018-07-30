@@ -21,6 +21,7 @@ import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import nz.co.lolnet.direct.Direct;
+import nz.co.lolnet.direct.data.Message;
 import nz.co.lolnet.direct.data.ServerData;
 import nz.co.lolnet.direct.storage.mysql.MySQLQuery;
 import nz.co.lolnet.direct.util.Toolbox;
@@ -81,6 +82,33 @@ public class ServerManager {
         }
         
         Direct.getInstance().getLogger().info("Successfully registered " + proxyServers.size() + " Servers");
+        
+        for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
+            if (!proxiedPlayer.isConnected() || proxiedPlayer.getServer() == null) {
+                continue;
+            }
+            
+            ServerInfo target = proxiedPlayer.getServer().getInfo();
+            ServerData serverData = getServer(target.getName());
+            Message.Builder messageBuilder = Message.builder().server(target.getName());
+            if (serverData == null) {
+                messageBuilder.type(Message.Type.REMOVED);
+            } else if (!isAccessible(serverData, proxiedPlayer)) {
+                messageBuilder.type(Message.Type.RESTRICTED);
+            } else if (!isProtocolSupported(serverData, proxiedPlayer)) {
+                messageBuilder.type(Message.Type.INCOMPATIBLE);
+            } else {
+                continue;
+            }
+            
+            target = getLobby(proxiedPlayer);
+            if (target != null) {
+                messageBuilder.build().sendMessage(proxiedPlayer);
+                proxiedPlayer.connect(target);
+            } else {
+                messageBuilder.build().disconnect(proxiedPlayer);
+            }
+        }
     }
     
     public static boolean isAccessible(ServerData serverData, ProxiedPlayer proxiedPlayer) {
