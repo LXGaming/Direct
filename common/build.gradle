@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    
+    dependencies {
+        classpath("com.github.jengelman.gradle.plugins:shadow:2.0.4")
+    }
+}
+
+apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: "java"
+apply plugin: "signing"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = "nz.co.lolnet"
+archivesBaseName = "Direct-Common"
+version = "2.0.0"
+
+configurations {
+    provided {
+        compile.extendsFrom(provided)
+    }
+
+    jar.enabled = false
+    jar.dependsOn("shadowJar")
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    provided("com.google.code.gson:gson:2.8.5")
+    shadow("com.zaxxer:HikariCP:2.6.3") {
+        exclude(module: "slf4j-api")
+    }
+    shadow("mysql:mysql-connector-java:5.1.47")
+}
+
+shadowJar {
+    classifier = null
+    configurations = [project.configurations.shadow]
+    exclude("server-ssl-cert.pem")
+    exclude("Version.java.template")
+    mergeServiceFiles()
+    relocate("com.mysql", "nz.co.lolnet.direct.lib.mysql")
+    relocate("com.zaxxer.hikari", "nz.co.lolnet.direct.lib.hikari")
+    relocate("org.gjt", "nz.co.lolnet.direct.lib.gjt")
+}
+
+jar {
+    from {
+        (configurations.compile - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+processResources {
+    from("LICENSE")
+    rename("LICENSE", "LICENSE-" + archivesBaseName)
+}
+
+task signJar {
+    doFirst {
+        if (!project.hasProperty("signing.keyStorePath") || !project.hasProperty("signing.secretKeyRingFile")) {
+            project.logger.warn("========== [WARNING] ==========")
+            project.logger.warn("")
+            project.logger.warn("   This build is not signed!   ")
+            project.logger.warn("")
+            project.logger.warn("========== [WARNING] ==========")
+            throw new StopExecutionException()
+        }
+    }
+
+    doLast {
+        jar.outputs.files.each {
+            ant.signjar(
+                jar: it,
+                alias: project.property("signing.alias"),
+                storepass: project.property("signing.keyStorePassword"),
+                keystore: project.property("signing.keyStorePath"),
+                keypass: project.property("signing.keyStorePassword"),
+                preservelastmodified: project.property("signing.preserveLastModified"),
+                tsaurl: project.property("signing.timestampAuthority"),
+                digestalg: project.property("signing.digestAlgorithm")
+            )
+            project.logger.lifecycle("JAR Signed: " + it.name)
+
+            signing.sign(it)
+            project.logger.lifecycle("PGP Signed: " + it.name)
+        }
+    }
+}

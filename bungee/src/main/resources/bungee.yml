@@ -1,0 +1,20 @@
+name: ${name}
+main: nz.co.lolnet.direct.bungee.BungeePlugin
+version: ${version}
+description: Server Manager
+author: LX_Gaming
+website: https://www.lolnet.co.nz
+commands:
+  Direct:
+    description: Main plugin command.
+    usage: /<command>
+    aliases: [Direct]
+permissions:
+  direct.bypass:
+    description: Bypass mod check
+  direct.command.lobby:
+    description: Connect to lobby
+  direct.command.modlist:
+    description: View players mods
+  direct.command.reload:
+    description: Reload direct
