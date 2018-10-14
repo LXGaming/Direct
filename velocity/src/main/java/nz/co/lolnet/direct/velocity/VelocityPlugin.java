@@ -83,8 +83,6 @@ public class VelocityPlugin implements Platform {
         
         direct.loadDirect();
         getProxy().getEventManager().register(getInstance(), new DirectListener());
-        
-        
         getProxy().getCommandManager().register(new DirectCommand(), "direct");
         getProxy().getCommandManager().register(new LobbyCommand(), "lobby", "hub");
         getProxy().getCommandManager().register(new ModListCommand(), "modlist");

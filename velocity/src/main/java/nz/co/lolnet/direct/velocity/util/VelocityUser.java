@@ -18,11 +18,9 @@ package nz.co.lolnet.direct.velocity.util;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
-import com.velocitypowered.api.proxy.server.ServerInfo;
 import nz.co.lolnet.direct.common.data.Message;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
-import nz.co.lolnet.direct.common.manager.DirectManager;
 import nz.co.lolnet.direct.velocity.VelocityPlugin;
 
 import java.util.Optional;
@@ -72,7 +70,7 @@ public class VelocityUser implements User {
     
     @Override
     public Optional<ServerData> getCurrentServer() {
-        return getPlayer().flatMap(Player::getCurrentServer).map(ServerConnection::getServerInfo).map(ServerInfo::getName).flatMap(DirectManager::getServer);
+        return getPlayer().flatMap(Player::getCurrentServer).map(ServerConnection::getServer).flatMap(VelocityToolbox::getServer);
     }
     
     private Optional<Player> getPlayer() {

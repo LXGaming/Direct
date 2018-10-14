@@ -16,7 +16,6 @@
 
 package nz.co.lolnet.direct.bungee.util;
 
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -24,7 +23,6 @@ import nz.co.lolnet.direct.bungee.BungeePlugin;
 import nz.co.lolnet.direct.common.data.Message;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
-import nz.co.lolnet.direct.common.manager.DirectManager;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -73,7 +71,7 @@ public final class BungeeUser implements User {
     
     @Override
     public Optional<ServerData> getCurrentServer() {
-        return getPlayer().map(ProxiedPlayer::getServer).map(Server::getInfo).map(ServerInfo::getName).flatMap(DirectManager::getServer);
+        return getPlayer().map(ProxiedPlayer::getServer).map(Server::getInfo).flatMap(BungeeToolbox::getServer);
     }
     
     private Optional<ProxiedPlayer> getPlayer() {

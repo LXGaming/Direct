@@ -23,13 +23,10 @@ import com.google.gson.JsonParser;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,20 +59,6 @@ public class Toolbox {
     
     public static boolean isNotBlank(CharSequence charSequence) {
         return !isBlank(charSequence);
-    }
-    
-    public static boolean containsIgnoreCase(Collection<String> list, String targetString) {
-        if (list == null || list.isEmpty()) {
-            return false;
-        }
-        
-        for (String string : list) {
-            if (string.equalsIgnoreCase(targetString)) {
-                return true;
-            }
-        }
-        
-        return false;
     }
     
     public static boolean containsIgnoreCase(String string, String searchString) {
@@ -143,16 +126,6 @@ public class Toolbox {
     @SafeVarargs
     public static <E> HashSet<E> newHashSet(E... elements) {
         return Stream.of(elements).collect(Collectors.toCollection(HashSet::new));
-    }
-    
-    @SafeVarargs
-    public static <E> LinkedBlockingQueue<E> newLinkedBlockingQueue(E... elements) {
-        return Stream.of(elements).collect(Collectors.toCollection(LinkedBlockingQueue::new));
-    }
-    
-    @SafeVarargs
-    public static <E> LinkedHashSet<E> newLinkedHashSet(E... elements) {
-        return Stream.of(elements).collect(Collectors.toCollection(LinkedHashSet::new));
     }
     
     public static <K, V> HashMap<K, V> newHashMap() {

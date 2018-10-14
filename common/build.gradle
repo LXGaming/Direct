@@ -45,7 +45,6 @@ shadowJar {
     configurations = [project.configurations.shadow]
     exclude("server-ssl-cert.pem")
     exclude("Version.java.template")
-    mergeServiceFiles()
     relocate("com.mysql", "nz.co.lolnet.direct.lib.mysql")
     relocate("com.zaxxer.hikari", "nz.co.lolnet.direct.lib.hikari")
     relocate("org.gjt", "nz.co.lolnet.direct.lib.gjt")

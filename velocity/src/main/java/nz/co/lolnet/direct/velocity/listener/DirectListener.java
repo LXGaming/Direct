@@ -47,26 +47,20 @@ public class DirectListener {
             return;
         }
         
-        String virtualHost = event.getPlayer().getVirtualHost().map(InetSocketAddress::getHostString).map(Toolbox::filter).orElse(null);
+        String virtualHost = event.getPlayer().getVirtualHost().map(InetSocketAddress::getHostString).orElse(null);
         if (Toolbox.isBlank(virtualHost)) {
             return;
         }
         
-        // Velocity should probably do this filtering for us...
-        if (virtualHost.endsWith("FML")) {
-            virtualHost = virtualHost.substring(0, virtualHost.length() - 3);
-        }
-        
-        ServerData serverData = DirectManager.getServer(DirectManager.getForcedHosts().get(virtualHost)).orElse(null);
-        if (serverData != null) {
-            VelocityToolbox.getServer(serverData).ifPresent(registeredServer -> event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer)));
-        }
+        DirectManager.getServer(DirectManager.getForcedHosts().get(virtualHost)).flatMap(VelocityToolbox::getServer).ifPresent(registeredServer -> {
+            event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer));
+        });
     }
     
     @Subscribe
     public void onServerPreConnect(ServerPreConnectEvent event) {
         User user = VelocityUser.of(event.getPlayer().getUniqueId());
-        ServerData serverData = DirectManager.getServer(event.getOriginalServer().getServerInfo().getName()).orElse(null);
+        ServerData serverData = VelocityToolbox.getServer(event.getOriginalServer()).orElse(null);
         if (serverData == null) {
             user.sendMessage(Message.builder().type(Message.Type.ERROR).build());
             event.setResult(ServerPreConnectEvent.ServerResult.denied());

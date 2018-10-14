@@ -49,6 +49,7 @@ public class BungeePlugin extends Plugin implements Platform {
     
     @Override
     public void onEnable() {
+        instance = this;
         Direct direct = new Direct(this);
         direct.getLogger()
                 .add(Logger.Level.INFO, getLogger()::info)
