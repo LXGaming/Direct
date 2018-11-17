@@ -25,7 +25,7 @@ public class MCLeaksCategory {
     private boolean enabled = false;
     private long expireAfter = 86400L;
     private int threadCount = 2;
-    private Set<String> execution = Sets.newHashSet();
+    private Set<String> execution = Sets.newHashSet("alert [PLAYER] Account is Untrusted");
     
     public boolean isEnabled() {
         return enabled;
