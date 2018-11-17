@@ -17,7 +17,7 @@ targetCompatibility = 1.8
 
 group = "nz.co.lolnet"
 archivesBaseName = "Direct-Bungee"
-version = "2.0.0"
+version = "2.1.0"
 
 configurations {
     provided {
@@ -52,9 +52,11 @@ shadowJar {
 
 jar {
     from {
-        (configurations.compile - configurations.provided).collect {
+        (configurations.compile - configurations.provided).findAll({
+            it.isDirectory() || it.name.endsWith(".jar")
+        }).collect({
             it.isDirectory() ? it : zipTree(it)
-        }
+        })
     }
 }
 

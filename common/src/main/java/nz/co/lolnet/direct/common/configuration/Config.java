@@ -16,6 +16,7 @@
 
 package nz.co.lolnet.direct.common.configuration;
 
+import nz.co.lolnet.direct.common.configuration.category.MCLeaksCategory;
 import nz.co.lolnet.direct.common.configuration.category.MessageCategory;
 import nz.co.lolnet.direct.common.configuration.category.StorageCategory;
 
@@ -23,6 +24,7 @@ public class Config {
     
     private boolean debug = false;
     private long kickMessageDelay = 1000L;
+    private MCLeaksCategory mcLeaks = new MCLeaksCategory();
     private MessageCategory messages = new MessageCategory();
     private StorageCategory storage = new StorageCategory();
     
@@ -36,6 +38,10 @@ public class Config {
     
     public long getKickMessageDelay() {
         return kickMessageDelay;
+    }
+    
+    public MCLeaksCategory getMcLeaks() {
+        return mcLeaks;
     }
     
     public MessageCategory getMessages() {

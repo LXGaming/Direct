@@ -18,6 +18,7 @@ package nz.co.lolnet.direct.velocity.listener;
 
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.connection.PostLoginEvent;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.PlayerModInfoEvent;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
@@ -29,6 +30,7 @@ import nz.co.lolnet.direct.common.data.Message;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
 import nz.co.lolnet.direct.common.manager.DirectManager;
+import nz.co.lolnet.direct.common.manager.MCLeaksManager;
 import nz.co.lolnet.direct.common.util.Toolbox;
 import nz.co.lolnet.direct.velocity.VelocityPlugin;
 import nz.co.lolnet.direct.velocity.util.VelocityToolbox;
@@ -39,6 +41,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class DirectListener {
+    
+    @Subscribe
+    public void onPostLogin(PostLoginEvent event) {
+        MCLeaksManager.checkAccount(VelocityUser.of(event.getPlayer().getUniqueId()));
+    }
     
     @Subscribe(order = PostOrder.EARLY)
     public void onServerPreConnectEarly(ServerPreConnectEvent event) {
@@ -104,7 +111,7 @@ public class DirectListener {
     @Subscribe(order = PostOrder.EARLY)
     public void onKickedFromServer(KickedFromServerEvent event) {
         User user = VelocityUser.of(event.getPlayer().getUniqueId());
-        String kickReason = VelocityToolbox.serializePlain(event.getOriginalReason());
+        String kickReason = event.getOriginalReason().map(VelocityToolbox::serializePlain).orElse(null);
         if (Toolbox.isNotBlank(kickReason) && kickReason.equals(Message.Type.TIMEOUT.getRawMessage().orElse(""))) {
             ServerData serverData = VelocityToolbox.getServer(event.getServer()).orElse(null);
             if (serverData != null && serverData.isLobby()) {

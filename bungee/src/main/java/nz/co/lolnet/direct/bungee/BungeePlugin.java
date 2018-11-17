@@ -35,6 +35,7 @@ import nz.co.lolnet.direct.common.data.Platform;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
 import nz.co.lolnet.direct.common.manager.DirectManager;
+import nz.co.lolnet.direct.common.manager.MCLeaksManager;
 import nz.co.lolnet.direct.common.util.Logger;
 import nz.co.lolnet.direct.common.util.Reference;
 import nz.co.lolnet.direct.common.util.Toolbox;
@@ -70,7 +71,8 @@ public class BungeePlugin extends Plugin implements Platform {
     
     @Override
     public void onDisable() {
-        getLogger().info(Reference.NAME + " v" + Reference.VERSION + " unloaded");
+        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
+        MCLeaksManager.shutdown();
     }
     
     @Override
@@ -115,7 +117,7 @@ public class BungeePlugin extends Plugin implements Platform {
             listenerInfo.getForcedHosts().putAll(DirectManager.getForcedHosts());
         }
         
-        Direct.getInstance().getLogger().info("Successfully registered " + proxyServers.size() + " Servers");
+        Direct.getInstance().getLogger().info("Successfully registered {} Servers", proxyServers.size());
         
         for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
             User user = BungeeUser.of(proxiedPlayer.getUniqueId());

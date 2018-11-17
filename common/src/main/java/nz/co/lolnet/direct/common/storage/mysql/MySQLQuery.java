@@ -76,7 +76,7 @@ public class MySQLQuery {
                 mods.add(modData);
             }
             
-            Direct.getInstance().getLogger().info("Found " + mods.size() + " Mods in MySQL");
+            Direct.getInstance().getLogger().info("Found {} Mods in MySQL", mods.size());
             return Optional.of(mods);
         } catch (SQLException ex) {
             Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getMods");
@@ -104,7 +104,7 @@ public class MySQLQuery {
                 servers.add(serverData);
             }
             
-            Direct.getInstance().getLogger().info("Found " + servers.size() + " Servers in MySQL");
+            Direct.getInstance().getLogger().info("Found {} Servers in MySQL", servers.size());
             return Optional.of(servers);
         } catch (SQLException ex) {
             Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers");

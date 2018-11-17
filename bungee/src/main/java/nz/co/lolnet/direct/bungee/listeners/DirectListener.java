@@ -18,6 +18,7 @@ package nz.co.lolnet.direct.bungee.listeners;
 
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
@@ -33,11 +34,17 @@ import nz.co.lolnet.direct.common.data.Message;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
 import nz.co.lolnet.direct.common.manager.DirectManager;
+import nz.co.lolnet.direct.common.manager.MCLeaksManager;
 import nz.co.lolnet.direct.common.util.Toolbox;
 
 import java.util.concurrent.TimeUnit;
 
 public class DirectListener implements Listener {
+    
+    @EventHandler
+    public void onPostLogin(PostLoginEvent event) {
+        MCLeaksManager.checkAccount(BungeeUser.of(event.getPlayer().getUniqueId()));
+    }
     
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {

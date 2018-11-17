@@ -17,7 +17,7 @@ targetCompatibility = 1.8
 
 group = "nz.co.lolnet"
 archivesBaseName = "Direct-Common"
-version = "2.0.0"
+version = "2.1.0"
 
 configurations {
     provided {
@@ -30,6 +30,10 @@ configurations {
 
 repositories {
     jcenter()
+    maven {
+        name = "themrgong"
+        url = "https://repo.themrgong.xyz/repository/thirdparty"
+    }
 }
 
 dependencies {
@@ -37,6 +41,7 @@ dependencies {
     shadow("com.zaxxer:HikariCP:2.6.3") {
         exclude(module: "slf4j-api")
     }
+    shadow("me.gong:mcleaks-api:1.9.5-SNAPSHOT")
     shadow("mysql:mysql-connector-java:5.1.47")
 }
 
@@ -47,14 +52,19 @@ shadowJar {
     exclude("Version.java.template")
     relocate("com.mysql", "nz.co.lolnet.direct.lib.mysql")
     relocate("com.zaxxer.hikari", "nz.co.lolnet.direct.lib.hikari")
+    relocate("me.gong.mcleaks", "nz.co.lolnet.direct.lib.mcleaks")
+    relocate("okhttp3", "nz.co.lolnet.direct.lib.okhttp3")
+    relocate("okio", "nz.co.lolnet.direct.lib.okio")
     relocate("org.gjt", "nz.co.lolnet.direct.lib.gjt")
 }
 
 jar {
     from {
-        (configurations.compile - configurations.provided).collect {
+        (configurations.compile - configurations.provided).findAll({
+            it.isDirectory() || it.name.endsWith(".jar")
+        }).collect({
             it.isDirectory() ? it : zipTree(it)
-        }
+        })
     }
 }
 

@@ -19,6 +19,7 @@ package nz.co.lolnet.direct.velocity;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
@@ -32,6 +33,7 @@ import nz.co.lolnet.direct.common.data.Platform;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
 import nz.co.lolnet.direct.common.manager.DirectManager;
+import nz.co.lolnet.direct.common.manager.MCLeaksManager;
 import nz.co.lolnet.direct.common.util.Logger;
 import nz.co.lolnet.direct.common.util.Reference;
 import nz.co.lolnet.direct.common.util.Toolbox;
@@ -88,6 +90,12 @@ public class VelocityPlugin implements Platform {
         getProxy().getCommandManager().register(new ModListCommand(), "modlist");
     }
     
+    @Subscribe
+    public void onProxyShutdown(ProxyShutdownEvent event) {
+        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
+        MCLeaksManager.shutdown();
+    }
+    
     @Override
     public void registerServers() {
         List<ServerInfo> proxyServers = Toolbox.newArrayList();
@@ -121,7 +129,7 @@ public class VelocityPlugin implements Platform {
         }
         
         proxyServers.forEach(getProxy()::registerServer);
-        Direct.getInstance().getLogger().info("Successfully registered " + proxyServers.size() + " Servers");
+        Direct.getInstance().getLogger().info("Successfully registered {} Servers", proxyServers.size());
         
         for (Player player : getProxy().getAllPlayers()) {
             User user = VelocityUser.of(player.getUniqueId());

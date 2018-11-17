@@ -20,6 +20,7 @@ import nz.co.lolnet.direct.common.configuration.Config;
 import nz.co.lolnet.direct.common.configuration.Configuration;
 import nz.co.lolnet.direct.common.data.Platform;
 import nz.co.lolnet.direct.common.manager.DirectManager;
+import nz.co.lolnet.direct.common.manager.MCLeaksManager;
 import nz.co.lolnet.direct.common.util.Logger;
 import nz.co.lolnet.direct.common.util.Reference;
 
@@ -42,6 +43,7 @@ public class Direct {
     public void loadDirect() {
         getLogger().info("Initializing...");
         reloadDirect();
+        MCLeaksManager.buildMCLeaks();
         getLogger().info("{} v{} has loaded", Reference.NAME, Reference.VERSION);
     }
     

@@ -46,7 +46,7 @@ public class LobbyCommand extends Command {
         ServerInfo serverInfo = DirectManager.getLobby(user).flatMap(BungeeToolbox::getServer).orElse(null);
         if (serverInfo != null) {
             player.connect(serverInfo);
-            Direct.getInstance().getLogger().debug(player.getName() + " - " + player.getServer().getInfo().getName() + " -> " + serverInfo.getName());
+            Direct.getInstance().getLogger().debug("{} - {} -> {}", player.getName(), player.getServer().getInfo().getName(), serverInfo.getName());
             return;
         }
         

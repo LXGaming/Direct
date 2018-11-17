@@ -85,13 +85,13 @@ public class DirectManager {
         for (String directConnect : serverData.getDirectConnects()) {
             String value = getForcedHosts().putIfAbsent(directConnect, serverData.getName());
             if (Toolbox.isNotBlank(value)) {
-                Direct.getInstance().getLogger().error("Direct connect " + directConnect + " is already assigned to " + value);
+                Direct.getInstance().getLogger().error("Direct connect {} is already assigned to {}", directConnect, value);
             }
         }
     }
     
     public static void checkMods(User user, Map<String, String> mods) {
-        if (user.hasPermission("direct.bypass")) {
+        if (user.hasPermission("direct.bypass.mods")) {
             return;
         }
         
@@ -110,7 +110,7 @@ public class DirectManager {
                         .replace("[SERVER]", user.getCurrentServer().map(ServerData::getName).orElse("Unknown"));
                 
                 if (Toolbox.isBlank(execution) || !Direct.getInstance().getPlatform().executeCommand(execution)) {
-                    Direct.getInstance().getLogger().error(modData.getId() + " execution failed: " + execution);
+                    Direct.getInstance().getLogger().error("{} execution failed: {}", modData.getId(), execution);
                 }
             }
         }
