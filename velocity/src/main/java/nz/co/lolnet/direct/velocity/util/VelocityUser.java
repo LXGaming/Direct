@@ -16,6 +16,7 @@
 
 package nz.co.lolnet.direct.velocity.util;
 
+import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ServerConnection;
 import nz.co.lolnet.direct.common.data.Message;
@@ -65,7 +66,7 @@ public class VelocityUser implements User {
     
     @Override
     public int getProtocolVersion() {
-        return getPlayer().map(Player::getProtocolVersion).orElse(0);
+        return getPlayer().map(Player::getProtocolVersion).map(ProtocolVersion::getProtocol).orElse(0);
     }
     
     @Override

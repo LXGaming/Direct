@@ -118,6 +118,14 @@ public class Toolbox {
         }
     }
     
+    public static <T> Optional<T> newInstance(Class<? extends T> typeOfT) {
+        try {
+            return Optional.of(typeOfT.newInstance());
+        } catch (Exception ex) {
+            return Optional.empty();
+        }
+    }
+    
     @SafeVarargs
     public static <E> ArrayList<E> newArrayList(E... elements) {
         return Stream.of(elements).collect(Collectors.toCollection(ArrayList::new));
