@@ -25,29 +25,39 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MySQLQuery {
     
     public static boolean createTables() {
         try (MySQLStorageAdapter storageAdapter = new MySQLStorageAdapter()) {
-            storageAdapter.createConnection().prepareStatement("CREATE TABLE IF NOT EXISTS `mod` (" +
-                    "`id` VARCHAR(255) NOT NULL," +
-                    "`name` VARCHAR(255) DEFAULT NULL," +
-                    "`execution` TEXT DEFAULT NULL," +
-                    "PRIMARY KEY (`id`));");
+            storageAdapter.createConnection().prepareStatement("CREATE TABLE IF NOT EXISTS `log` ("
+                    + "`id` INT(11) NOT NULL AUTO_INCREMENT,"
+                    + "`timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+                    + "`unique_id` CHAR(36) NOT NULL,"
+                    + "`type` TEXT DEFAULT NULL,"
+                    + "`details` TEXT DEFAULT NULL,"
+                    + "PRIMARY KEY (`id`));");
             storageAdapter.execute();
             
-            storageAdapter.prepareStatement("CREATE TABLE IF NOT EXISTS `server` (" +
-                    "`name` VARCHAR(255) NOT NULL," +
-                    "`host` VARCHAR(255) NOT NULL DEFAULT ?," +
-                    "`port` SMALLINT(5) UNSIGNED NOT NULL DEFAULT ?," +
-                    "`direct_connects` TEXT DEFAULT NULL," +
-                    "`protocol_versions` TEXT DEFAULT NULL," +
-                    "`motd` VARCHAR(255) NOT NULL DEFAULT ?," +
-                    "`active` TINYINT(1) NOT NULL DEFAULT ?," +
-                    "`lobby` TINYINT(1) NOT NULL DEFAULT ?," +
-                    "`restricted` TINYINT(1) NOT NULL DEFAULT ?," +
-                    "PRIMARY KEY (`name`));");
+            storageAdapter.prepareStatement("CREATE TABLE IF NOT EXISTS `mod` ("
+                    + "`id` VARCHAR(255) NOT NULL,"
+                    + "`name` VARCHAR(255) DEFAULT NULL,"
+                    + "`execution` TEXT DEFAULT NULL,"
+                    + "PRIMARY KEY (`id`));");
+            storageAdapter.execute();
+            
+            storageAdapter.prepareStatement("CREATE TABLE IF NOT EXISTS `server` ("
+                    + "`name` VARCHAR(255) NOT NULL,"
+                    + "`host` VARCHAR(255) NOT NULL DEFAULT ?,"
+                    + "`port` SMALLINT(5) UNSIGNED NOT NULL DEFAULT ?,"
+                    + "`direct_connects` TEXT DEFAULT NULL,"
+                    + "`protocol_versions` TEXT DEFAULT NULL,"
+                    + "`motd` VARCHAR(255) NOT NULL DEFAULT ?,"
+                    + "`active` TINYINT(1) NOT NULL DEFAULT ?,"
+                    + "`lobby` TINYINT(1) NOT NULL DEFAULT ?,"
+                    + "`restricted` TINYINT(1) NOT NULL DEFAULT ?,"
+                    + "PRIMARY KEY (`name`));");
             storageAdapter.getPreparedStatement().setString(1, "localhost");
             storageAdapter.getPreparedStatement().setInt(2, 25565);
             storageAdapter.getPreparedStatement().setString(3, "&9&l[Direct] &r[SERVER]");
@@ -57,8 +67,7 @@ public class MySQLQuery {
             storageAdapter.execute();
             return true;
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::createTables");
-            ex.printStackTrace();
+            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::createTables", ex);
             return false;
         }
     }
@@ -79,8 +88,7 @@ public class MySQLQuery {
             Direct.getInstance().getLogger().info("Found {} Mods in MySQL", mods.size());
             return Optional.of(mods);
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getMods");
-            ex.printStackTrace();
+            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getMods", ex);
             return Optional.empty();
         }
     }
@@ -107,9 +115,21 @@ public class MySQLQuery {
             Direct.getInstance().getLogger().info("Found {} Servers in MySQL", servers.size());
             return Optional.of(servers);
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers");
-            ex.printStackTrace();
+            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers", ex);
             return Optional.empty();
+        }
+    }
+    
+    public static boolean createLog(UUID uniqueId, String type, String details) {
+        try (MySQLStorageAdapter storageAdapter = new MySQLStorageAdapter()) {
+            storageAdapter.createConnection().prepareStatement("INSERT INTO `log` (`unique_id`, `type`, `details`) VALUES (?, ?, ?);");
+            storageAdapter.getPreparedStatement().setString(1, uniqueId.toString());
+            storageAdapter.getPreparedStatement().setString(2, type);
+            storageAdapter.getPreparedStatement().setString(3, details);
+            return storageAdapter.getPreparedStatement().executeUpdate() != 0;
+        } catch (SQLException ex) {
+            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers", ex);
+            return false;
         }
     }
 }

@@ -16,7 +16,11 @@
 
 package nz.co.lolnet.direct.common.manager;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import nz.co.lolnet.direct.common.Direct;
+import nz.co.lolnet.direct.common.configuration.Config;
+import nz.co.lolnet.direct.common.configuration.category.LogCategory;
 import nz.co.lolnet.direct.common.data.ModData;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
@@ -95,6 +99,7 @@ public class DirectManager {
             return;
         }
         
+        List<ModData> detectedMods = Toolbox.newArrayList();
         for (Map.Entry<String, String> entry : mods.entrySet()) {
             ModData modData = getModData(entry.getKey()).orElse(null);
             if (modData == null || modData.getExecution().isEmpty()) {
@@ -102,6 +107,8 @@ public class DirectManager {
             }
             
             Direct.getInstance().getLogger().warn("{} connected with {} ({})", user.getName(), modData.getName(), modData.getId());
+            detectedMods.add(modData);
+            
             for (String execution : modData.getExecution()) {
                 execution = execution
                         .replace("[ID]", modData.getId())
@@ -113,6 +120,25 @@ public class DirectManager {
                     Direct.getInstance().getLogger().error("{} execution failed: {}", modData.getId(), execution);
                 }
             }
+        }
+        
+        if (detectedMods.isEmpty()) {
+            return;
+        }
+        
+        if (Direct.getInstance().getConfig().map(Config::getLog).map(LogCategory::isDetectionModList).orElse(false)) {
+            Direct.getInstance().getPlatform().executeAsync(() -> {
+                MySQLQuery.createLog(user.getUniqueId(), "MODLIST", new Gson().toJson(mods));
+            });
+        }
+        
+        if (Direct.getInstance().getConfig().map(Config::getLog).map(LogCategory::isDetectionMods).orElse(false)) {
+            JsonObject jsonObject = new JsonObject();
+            detectedMods.forEach(mod -> jsonObject.addProperty(mod.getId(), mod.getName()));
+            
+            Direct.getInstance().getPlatform().executeAsync(() -> {
+                MySQLQuery.createLog(user.getUniqueId(), "DETECTION", new Gson().toJson(jsonObject));
+            });
         }
     }
     

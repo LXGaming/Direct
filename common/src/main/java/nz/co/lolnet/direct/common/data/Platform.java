@@ -22,6 +22,8 @@ public interface Platform {
     
     void registerServers();
     
+    void executeAsync(Runnable runnable);
+    
     boolean executeCommand(String command);
     
     Type getType();

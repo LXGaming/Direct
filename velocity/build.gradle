@@ -5,8 +5,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group = "nz.co.lolnet"
-archivesBaseName = "Direct-Velocity"
-version = "2.1.0"
+archivesBaseName = "direct-velocity"
+version = "2.2.0"
 
 configurations {
     provided {

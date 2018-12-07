@@ -41,8 +41,8 @@ public abstract class StorageAdapter implements AutoCloseable {
             hikariDataSource.setDriverClassName(getDriverClassName());
             hikariDataSource.setUsername(storage.getUsername());
             hikariDataSource.setPassword(storage.getPassword());
-            hikariDataSource.setMaximumPoolSize(2);
-            hikariDataSource.setMinimumIdle(1);
+            hikariDataSource.setMaximumPoolSize(storage.getMaximumPoolSize());
+            hikariDataSource.setMinimumIdle(storage.getMinimumIdle());
         });
         
         return hikariDataSource;

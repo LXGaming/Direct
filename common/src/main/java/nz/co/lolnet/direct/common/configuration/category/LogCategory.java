@@ -16,30 +16,16 @@
 
 package nz.co.lolnet.direct.common.configuration.category;
 
-import nz.co.lolnet.direct.common.util.Toolbox;
-
-import java.util.Set;
-
-public class MCLeaksCategory {
+public class LogCategory {
     
-    private boolean enabled = false;
-    private long expireAfter = 86400L;
-    private int threadCount = 2;
-    private Set<String> execution = Toolbox.newHashSet("alert [PLAYER] Account is Untrusted");
+    private boolean detectionMods;
+    private boolean detectionModList;
     
-    public boolean isEnabled() {
-        return enabled;
+    public boolean isDetectionMods() {
+        return detectionMods;
     }
     
-    public long getExpireAfter() {
-        return expireAfter;
-    }
-    
-    public int getThreadCount() {
-        return threadCount;
-    }
-    
-    public Set<String> getExecution() {
-        return execution;
+    public boolean isDetectionModList() {
+        return detectionModList;
     }
 }

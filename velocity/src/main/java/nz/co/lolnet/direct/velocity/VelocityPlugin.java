@@ -156,6 +156,11 @@ public class VelocityPlugin implements Platform {
     }
     
     @Override
+    public void executeAsync(Runnable runnable) {
+        getProxy().getScheduler().buildTask(getInstance(), runnable).schedule();
+    }
+    
+    @Override
     public boolean executeCommand(String command) {
         return getProxy().getCommandManager().execute(new DirectCommandSource(), command);
     }

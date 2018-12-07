@@ -22,6 +22,8 @@ public class StorageCategory {
     private String database = "direct";
     private String username = "direct";
     private String password = "password";
+    private int maximumPoolSize = 2;
+    private int minimumIdle = 1;
     
     public String getAddress() {
         return address;
@@ -37,5 +39,13 @@ public class StorageCategory {
     
     public String getPassword() {
         return password;
+    }
+    
+    public int getMaximumPoolSize() {
+        return maximumPoolSize;
+    }
+    
+    public int getMinimumIdle() {
+        return minimumIdle;
     }
 }

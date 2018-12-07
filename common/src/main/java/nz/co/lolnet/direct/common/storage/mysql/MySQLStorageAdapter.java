@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 public class MySQLStorageAdapter extends StorageAdapter {
     
@@ -30,6 +31,7 @@ public class MySQLStorageAdapter extends StorageAdapter {
     private Connection connection;
     private PreparedStatement preparedStatement;
     private ResultSet resultSet;
+    private boolean retrieveGeneratedKeys;
     
     public MySQLStorageAdapter() {
         super("mysql", "com.mysql.jdbc.Driver");
@@ -49,11 +51,22 @@ public class MySQLStorageAdapter extends StorageAdapter {
     }
     
     public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return prepareStatement(sql, false);
+    }
+    
+    public PreparedStatement prepareStatement(String sql, boolean retrieveGeneratedKeys) throws SQLException {
         if (getConnection() == null) {
             throw new SQLException("Connection is null");
         }
         
-        setPreparedStatement(getConnection().prepareStatement(sql));
+        close("PreparedStatement", getPreparedStatement());
+        setRetrieveGeneratedKeys(retrieveGeneratedKeys);
+        if (isRetrieveGeneratedKeys()) {
+            setPreparedStatement(getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS));
+        } else {
+            setPreparedStatement(getConnection().prepareStatement(sql, Statement.NO_GENERATED_KEYS));
+        }
+        
         return getPreparedStatement();
     }
     
@@ -62,12 +75,16 @@ public class MySQLStorageAdapter extends StorageAdapter {
             throw new SQLException("PreparedStatement is null");
         }
         
+        close("ResultSet", getResultSet());
         if (getPreparedStatement().execute()) {
             setResultSet(getPreparedStatement().getResultSet());
-            return getResultSet();
+        } else if (isRetrieveGeneratedKeys()) {
+            setResultSet(getPreparedStatement().getGeneratedKeys());
+        } else {
+            setResultSet(null);
         }
         
-        return null;
+        return getResultSet();
     }
     
     @Override
@@ -99,5 +116,13 @@ public class MySQLStorageAdapter extends StorageAdapter {
     
     protected void setResultSet(ResultSet resultSet) {
         this.resultSet = resultSet;
+    }
+    
+    public boolean isRetrieveGeneratedKeys() {
+        return retrieveGeneratedKeys;
+    }
+    
+    protected void setRetrieveGeneratedKeys(boolean retrieveGeneratedKeys) {
+        this.retrieveGeneratedKeys = retrieveGeneratedKeys;
     }
 }
