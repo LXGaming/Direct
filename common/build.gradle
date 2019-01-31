@@ -4,7 +4,7 @@ buildscript {
     }
     
     dependencies {
-        classpath("com.github.jengelman.gradle.plugins:shadow:2.0.4")
+        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
     }
 }
 
@@ -31,8 +31,8 @@ configurations {
 repositories {
     jcenter()
     maven {
-        name = "themrgong"
-        url = "https://repo.themrgong.xyz/repository/thirdparty"
+        name = "wesjd"
+        url = "https://nexus.wesjd.net/repository/thirdparty"
     }
 }
 
@@ -86,7 +86,7 @@ task signJar {
     }
 
     doLast {
-        jar.outputs.files.each {
+        configurations.archives.allArtifacts.files.each {
             ant.signjar(
                 jar: it,
                 alias: project.property("signing.alias"),

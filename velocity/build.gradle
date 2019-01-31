@@ -12,6 +12,8 @@ configurations {
     provided {
         compile.extendsFrom(provided)
     }
+
+    compileJava.dependsOn(":common:build")
 }
 
 repositories {
@@ -57,7 +59,7 @@ task signJar {
     }
 
     doLast {
-        jar.outputs.files.each {
+        configurations.archives.allArtifacts.files.each {
             ant.signjar(
                 jar: it,
                 alias: project.property("signing.alias"),
