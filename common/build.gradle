@@ -31,8 +31,8 @@ configurations {
 repositories {
     jcenter()
     maven {
-        name = "wesjd"
-        url = "https://nexus.wesjd.net/repository/thirdparty"
+        name = "lolnet"
+        url = "https://api.lolnet.co.nz/maven"
     }
 }
 
