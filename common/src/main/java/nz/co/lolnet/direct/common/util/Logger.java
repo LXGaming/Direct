@@ -52,7 +52,7 @@ public class Logger {
         } else {
             System.out.println(format("[{}] [{}] [{}]: {}",
                     new SimpleDateFormat("HH:mm:ss").format(Instant.now().toEpochMilli()),
-                    level.getFriendlyName(),
+                    level.toString(),
                     Thread.currentThread().getName(),
                     format(format, arguments)));
         }
@@ -119,22 +119,23 @@ public class Logger {
     
     public enum Level {
         
-        DEBUG("Debug"),
+        DEBUG("DEBUG"),
         
-        INFO("Info"),
+        INFO("INFO"),
         
-        WARN("Warn"),
+        WARN("WARN"),
         
-        ERROR("Error");
+        ERROR("ERROR");
         
-        private final String friendlyName;
+        private final String name;
         
-        Level(String friendlyName) {
-            this.friendlyName = friendlyName;
+        Level(String name) {
+            this.name = name;
         }
         
-        public String getFriendlyName() {
-            return friendlyName;
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }
