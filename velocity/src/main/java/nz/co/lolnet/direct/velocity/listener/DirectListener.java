@@ -67,7 +67,8 @@ public class DirectListener {
     @Subscribe
     public void onServerPreConnect(ServerPreConnectEvent event) {
         User user = VelocityUser.of(event.getPlayer().getUniqueId());
-        ServerData serverData = VelocityToolbox.getServer(event.getOriginalServer()).orElse(null);
+        ServerData serverData = VelocityToolbox.getServer(event.getResult().getServer().orElse(event.getOriginalServer())).orElse(null);
+        
         if (serverData == null) {
             user.sendMessage(Message.builder().type(Message.Type.ERROR).build());
             event.setResult(ServerPreConnectEvent.ServerResult.denied());
@@ -91,7 +92,7 @@ public class DirectListener {
         
         User user = VelocityUser.of(event.getPlayer().getUniqueId());
         RegisteredServer lobby = DirectManager.getLobby(user).flatMap(VelocityToolbox::getServer).orElse(null);
-        if (lobby != null && event.getOriginalServer() != lobby) {
+        if (lobby != null) {
             event.setResult(ServerPreConnectEvent.ServerResult.allowed(lobby));
         } else {
             user.disconnect(Message.builder().type(Message.Type.FAIL).build());

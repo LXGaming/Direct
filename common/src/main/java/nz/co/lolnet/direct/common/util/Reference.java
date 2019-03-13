@@ -20,7 +20,7 @@ public class Reference {
     
     public static final String ID = "direct";
     public static final String NAME = "Direct";
-    public static final String VERSION = "2.2.0";
+    public static final String VERSION = "2.3.0";
     public static final String DESCRIPTION = "Server Management";
     public static final String AUTHORS = "LX_Gaming";
     public static final String SOURCE = "https://github.com/lolnetnz/Direct/";
