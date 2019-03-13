@@ -94,10 +94,12 @@ public class VelocityPlugin implements Platform {
     public void onProxyShutdown(ProxyShutdownEvent event) {
         Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
         MCLeaksManager.shutdown();
+        Direct.getInstance().getStorage().close();
     }
     
     @Override
     public void registerServers() {
+        // Building
         List<ServerInfo> proxyServers = Toolbox.newArrayList();
         for (ServerData serverData : DirectManager.getServers()) {
             if (Toolbox.isBlank(serverData.getName())) {
@@ -124,13 +126,16 @@ public class VelocityPlugin implements Platform {
             proxyServers.add(serverInfo);
         }
         
+        // Servers
         for (RegisteredServer registeredServer : getProxy().getAllServers()) {
             getProxy().unregisterServer(registeredServer.getServerInfo());
         }
         
         proxyServers.forEach(getProxy()::registerServer);
+        
         Direct.getInstance().getLogger().info("Successfully registered {} Servers", proxyServers.size());
         
+        // Players
         for (Player player : getProxy().getAllPlayers()) {
             User user = VelocityUser.of(player.getUniqueId());
             ServerData serverData = user.getCurrentServer().orElse(null);

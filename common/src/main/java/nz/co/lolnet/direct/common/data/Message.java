@@ -106,11 +106,11 @@ public class Message {
         RESTRICTED("Restricted", MessageCategory::getRestricted),
         TIMEOUT("Timeout", MessageCategory::getTimeout);
         
-        private final String friendlyName;
+        private final String name;
         private final Function<MessageCategory, String> function;
         
-        Type(String friendlyName, Function<MessageCategory, String> function) {
-            this.friendlyName = friendlyName;
+        Type(String name, Function<MessageCategory, String> function) {
+            this.name = name;
             this.function = function;
         }
         
@@ -118,12 +118,13 @@ public class Message {
             return Direct.getInstance().getConfig().map(Config::getMessages).map(getFunction());
         }
         
-        public String getFriendlyName() {
-            return friendlyName;
-        }
-        
         public Function<MessageCategory, String> getFunction() {
             return function;
+        }
+        
+        @Override
+        public String toString() {
+            return name;
         }
     }
 }

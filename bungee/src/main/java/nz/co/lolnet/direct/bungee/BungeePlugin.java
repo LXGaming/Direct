@@ -73,10 +73,12 @@ public class BungeePlugin extends Plugin implements Platform {
     public void onDisable() {
         Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
         MCLeaksManager.shutdown();
+        Direct.getInstance().getStorage().close();
     }
     
     @Override
     public void registerServers() {
+        // Building
         Map<String, ServerInfo> proxyServers = Toolbox.newHashMap();
         for (ServerData serverData : DirectManager.getServers()) {
             if (Toolbox.isBlank(serverData.getName())) {
@@ -107,18 +109,23 @@ public class BungeePlugin extends Plugin implements Platform {
             proxyServers.put(serverInfo.getName(), serverInfo);
         }
         
+        // Servers
         BungeeToolbox.getProxyServers().clear();
         BungeeToolbox.getProxyServers().putAll(proxyServers);
         
         for (ListenerInfo listenerInfo : BungeeToolbox.getProxyListeners()) {
+            // Priority
             listenerInfo.getServerPriority().clear();
             listenerInfo.getServerPriority().addAll(DirectManager.getServerPriority());
+            
+            // Forced Hosts
             listenerInfo.getForcedHosts().clear();
             listenerInfo.getForcedHosts().putAll(DirectManager.getForcedHosts());
         }
         
         Direct.getInstance().getLogger().info("Successfully registered {} Servers", proxyServers.size());
         
+        // Players
         for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
             User user = BungeeUser.of(proxiedPlayer.getUniqueId());
             ServerData serverData = user.getCurrentServer().orElse(null);

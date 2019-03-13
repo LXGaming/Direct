@@ -24,7 +24,6 @@ import nz.co.lolnet.direct.common.configuration.category.LogCategory;
 import nz.co.lolnet.direct.common.data.ModData;
 import nz.co.lolnet.direct.common.data.ServerData;
 import nz.co.lolnet.direct.common.data.User;
-import nz.co.lolnet.direct.common.storage.mysql.MySQLQuery;
 import nz.co.lolnet.direct.common.util.Toolbox;
 
 import java.util.Collections;
@@ -50,24 +49,36 @@ public class DirectManager {
     }
     
     public static boolean prepareDirect() {
-        if (!MySQLQuery.createTables()) {
-            Direct.getInstance().getLogger().error("Failed to create tables");
+        try {
+            if (!Direct.getInstance().getStorage().connect()) {
+                Direct.getInstance().getLogger().error("Connection failed");
+                return false;
+            }
+            
+            if (!Direct.getInstance().getStorage().getQuery().createTables()) {
+                Direct.getInstance().getLogger().error("Failed to create tables");
+                return false;
+            }
+        } catch (Exception ex) {
+            Direct.getInstance().getLogger().error("Encountered an error while connecting to {}", Direct.getInstance().getStorage().getClass().getSimpleName(), ex);
             return false;
         }
         
-        Optional<List<ModData>> mods = MySQLQuery.getMods();
-        if (!mods.isPresent()) {
+        List<ModData> mods = Direct.getInstance().getStorage().getQuery().getMods();
+        if (mods == null) {
+            Direct.getInstance().getLogger().error("Failed to get mods");
             return false;
         }
         
-        getMods().addAll(mods.get());
+        getMods().addAll(mods);
         
-        Optional<List<ServerData>> servers = MySQLQuery.getServers();
-        if (!servers.isPresent()) {
+        List<ServerData> servers = Direct.getInstance().getStorage().getQuery().getServers();
+        if (servers == null) {
+            Direct.getInstance().getLogger().error("Failed to get servers");
             return false;
         }
         
-        getServers().addAll(servers.get());
+        getServers().addAll(servers);
         return !getServers().isEmpty();
     }
     
@@ -128,7 +139,7 @@ public class DirectManager {
         
         if (Direct.getInstance().getConfig().map(Config::getLog).map(LogCategory::isDetectionModList).orElse(false)) {
             Direct.getInstance().getPlatform().executeAsync(() -> {
-                MySQLQuery.createLog(user.getUniqueId(), "MODLIST", new Gson().toJson(mods));
+                Direct.getInstance().getStorage().getQuery().createLog(user.getUniqueId(), "MODLIST", new Gson().toJson(mods));
             });
         }
         
@@ -137,7 +148,7 @@ public class DirectManager {
             detectedMods.forEach(mod -> jsonObject.addProperty(mod.getId(), mod.getName()));
             
             Direct.getInstance().getPlatform().executeAsync(() -> {
-                MySQLQuery.createLog(user.getUniqueId(), "DETECTION", new Gson().toJson(jsonObject));
+                Direct.getInstance().getStorage().getQuery().createLog(user.getUniqueId(), "DETECTION", new Gson().toJson(jsonObject));
             });
         }
     }

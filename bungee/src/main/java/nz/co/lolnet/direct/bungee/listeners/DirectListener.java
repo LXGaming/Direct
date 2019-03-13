@@ -90,11 +90,13 @@ public class DirectListener implements Listener {
     public void onServerKick(ServerKickEvent event) {
         User user = BungeeUser.of(event.getPlayer().getUniqueId());
         String kickReason = TextComponent.toPlainText(event.getKickReasonComponent());
-        if (Toolbox.isNotBlank(kickReason) && kickReason.equals(Message.Type.TIMEOUT.getRawMessage().orElse(""))) {
-            ServerData serverData = BungeeToolbox.getServer(event.getKickedFrom()).orElse(null);
-            if (serverData != null && serverData.isLobby()) {
-                user.disconnect(Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build());
-                return;
+        if (Toolbox.isNotBlank(kickReason)) {
+            if (Message.Type.TIMEOUT.getRawMessage().map(kickReason::equals).orElse(false)) {
+                ServerData serverData = BungeeToolbox.getServer(event.getKickedFrom()).orElse(null);
+                if (serverData != null && serverData.isLobby()) {
+                    user.disconnect(Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build());
+                    return;
+                }
             }
         }
         
@@ -103,8 +105,9 @@ public class DirectListener implements Listener {
             event.setCancelServer(serverInfo);
             event.setCancelled(true);
             
+            Message message = Message.builder().type(Message.Type.KICK).server(serverInfo.getName()).reason(kickReason).build();
             BungeePlugin.getInstance().getProxy().getScheduler().schedule(BungeePlugin.getInstance(), () -> {
-                user.sendMessage(Message.builder().type(Message.Type.KICK).server(serverInfo.getName()).reason(kickReason).build());
+                user.sendMessage(message);
             }, Direct.getInstance().getConfig().map(Config::getKickMessageDelay).orElse(0L), TimeUnit.MILLISECONDS);
         } else {
             user.disconnect(Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build());

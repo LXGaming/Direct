@@ -21,6 +21,8 @@ import nz.co.lolnet.direct.common.configuration.Configuration;
 import nz.co.lolnet.direct.common.data.Platform;
 import nz.co.lolnet.direct.common.manager.DirectManager;
 import nz.co.lolnet.direct.common.manager.MCLeaksManager;
+import nz.co.lolnet.direct.common.storage.Storage;
+import nz.co.lolnet.direct.common.storage.mysql.MySQLStorage;
 import nz.co.lolnet.direct.common.util.Logger;
 import nz.co.lolnet.direct.common.util.Reference;
 
@@ -32,12 +34,14 @@ public class Direct {
     private final Platform platform;
     private final Logger logger;
     private final Configuration configuration;
+    private final Storage storage;
     
     public Direct(Platform platform) {
         instance = this;
         this.platform = platform;
         this.logger = new Logger();
         this.configuration = new Configuration();
+        this.storage = new MySQLStorage();
     }
     
     public void loadDirect() {
@@ -94,5 +98,9 @@ public class Direct {
         }
         
         return Optional.empty();
+    }
+    
+    public Storage getStorage() {
+        return storage;
     }
 }

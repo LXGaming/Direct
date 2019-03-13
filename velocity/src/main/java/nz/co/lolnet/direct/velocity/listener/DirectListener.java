@@ -112,11 +112,13 @@ public class DirectListener {
     public void onKickedFromServer(KickedFromServerEvent event) {
         User user = VelocityUser.of(event.getPlayer().getUniqueId());
         String kickReason = event.getOriginalReason().map(VelocityToolbox::serializePlain).orElse(null);
-        if (Toolbox.isNotBlank(kickReason) && kickReason.equals(Message.Type.TIMEOUT.getRawMessage().orElse(""))) {
-            ServerData serverData = VelocityToolbox.getServer(event.getServer()).orElse(null);
-            if (serverData != null && serverData.isLobby()) {
-                user.disconnect(Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build());
-                return;
+        if (Toolbox.isNotBlank(kickReason)) {
+            if (Message.Type.TIMEOUT.getRawMessage().map(kickReason::equals).orElse(false)) {
+                ServerData serverData = VelocityToolbox.getServer(event.getServer()).orElse(null);
+                if (serverData != null && serverData.isLobby()) {
+                    user.disconnect(Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build());
+                    return;
+                }
             }
         }
         
@@ -124,8 +126,9 @@ public class DirectListener {
         if (registeredServer != null) {
             event.setResult(KickedFromServerEvent.RedirectPlayer.create(registeredServer));
             
+            Message message = Message.builder().type(Message.Type.KICK).server(registeredServer.getServerInfo().getName()).reason(kickReason).build();
             VelocityPlugin.getInstance().getProxy().getScheduler().buildTask(VelocityPlugin.getInstance(), () -> {
-                user.sendMessage(Message.builder().type(Message.Type.KICK).server(registeredServer.getServerInfo().getName()).reason(kickReason).build());
+                user.sendMessage(message);
             }).delay(Direct.getInstance().getConfig().map(Config::getKickMessageDelay).orElse(0L), TimeUnit.MILLISECONDS).schedule();
         } else {
             user.disconnect(Message.builder().type(Message.Type.DISCONNECT).reason(kickReason).build());
