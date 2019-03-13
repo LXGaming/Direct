@@ -92,18 +92,19 @@ public class MySQLQuery implements Query {
     public List<ModData> getMods() {
         try (Connection connection = storage.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `mod`")) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                List<ModData> mods = Toolbox.newArrayList();
-                while (resultSet.next()) {
-                    ModData modData = new ModData();
-                    modData.setId(resultSet.getString("id"));
-                    modData.setName(resultSet.getString("name"));
-                    modData.setExecution(Toolbox.buildElements(resultSet.getString("execution"), String.class).orElse(Toolbox.newHashSet()));
-                    mods.add(modData);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    List<ModData> mods = Toolbox.newArrayList();
+                    while (resultSet.next()) {
+                        ModData modData = new ModData();
+                        modData.setId(resultSet.getString("id"));
+                        modData.setName(resultSet.getString("name"));
+                        modData.setExecution(Toolbox.buildElements(resultSet.getString("execution"), String.class).orElse(Toolbox.newHashSet()));
+                        mods.add(modData);
+                    }
+                    
+                    Direct.getInstance().getLogger().info("Found {} Mods in MySQL", mods.size());
+                    return mods;
                 }
-                
-                Direct.getInstance().getLogger().info("Found {} Mods in MySQL", mods.size());
-                return mods;
             }
         } catch (SQLException ex) {
             Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getMods", ex);
@@ -115,24 +116,25 @@ public class MySQLQuery implements Query {
     public List<ServerData> getServers() {
         try (Connection connection = storage.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `server`")) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                List<ServerData> servers = Toolbox.newArrayList();
-                while (resultSet.next()) {
-                    ServerData serverData = new ServerData();
-                    serverData.setName(resultSet.getString("name"));
-                    serverData.setHost(resultSet.getString("host"));
-                    serverData.setPort(resultSet.getInt("port"));
-                    serverData.setDirectConnects(Toolbox.buildElements(resultSet.getString("direct_connects"), String.class).orElse(Toolbox.newHashSet()));
-                    serverData.setProtocolVersions(Toolbox.buildElements(resultSet.getString("protocol_versions"), Integer.class).orElse(Toolbox.newHashSet()));
-                    serverData.setMotd(resultSet.getString("motd"));
-                    serverData.setActive(resultSet.getBoolean("active"));
-                    serverData.setLobby(resultSet.getBoolean("lobby"));
-                    serverData.setRestricted(resultSet.getBoolean("restricted"));
-                    servers.add(serverData);
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    List<ServerData> servers = Toolbox.newArrayList();
+                    while (resultSet.next()) {
+                        ServerData serverData = new ServerData();
+                        serverData.setName(resultSet.getString("name"));
+                        serverData.setHost(resultSet.getString("host"));
+                        serverData.setPort(resultSet.getInt("port"));
+                        serverData.setDirectConnects(Toolbox.buildElements(resultSet.getString("direct_connects"), String.class).orElse(Toolbox.newHashSet()));
+                        serverData.setProtocolVersions(Toolbox.buildElements(resultSet.getString("protocol_versions"), Integer.class).orElse(Toolbox.newHashSet()));
+                        serverData.setMotd(resultSet.getString("motd"));
+                        serverData.setActive(resultSet.getBoolean("active"));
+                        serverData.setLobby(resultSet.getBoolean("lobby"));
+                        serverData.setRestricted(resultSet.getBoolean("restricted"));
+                        servers.add(serverData);
+                    }
+                    
+                    Direct.getInstance().getLogger().info("Found {} Servers in MySQL", servers.size());
+                    return servers;
                 }
-                
-                Direct.getInstance().getLogger().info("Found {} Servers in MySQL", servers.size());
-                return servers;
             }
         } catch (SQLException ex) {
             Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers", ex);
