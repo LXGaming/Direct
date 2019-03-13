@@ -92,9 +92,9 @@ public class VelocityPlugin implements Platform {
     
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
         MCLeaksManager.shutdown();
         Direct.getInstance().getStorage().close();
+        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
     }
     
     @Override

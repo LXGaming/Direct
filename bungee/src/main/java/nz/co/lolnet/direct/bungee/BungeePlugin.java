@@ -71,9 +71,9 @@ public class BungeePlugin extends Plugin implements Platform {
     
     @Override
     public void onDisable() {
-        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
         MCLeaksManager.shutdown();
         Direct.getInstance().getStorage().close();
+        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
     }
     
     @Override

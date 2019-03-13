@@ -153,7 +153,7 @@ public class MySQLQuery implements Query {
                 return preparedStatement.executeUpdate() != 0;
             }
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers", ex);
+            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::createLog", ex);
             return false;
         }
     }
