@@ -17,7 +17,7 @@ targetCompatibility = 1.8
 
 group = "nz.co.lolnet"
 archivesBaseName = "direct-bungee"
-version = "2.2.0"
+version = version
 
 configurations {
     provided {
@@ -42,7 +42,7 @@ dependencies {
         exclude(module: "gson")
     }
     provided("net.md-5:bungeecord-api:1.13-SNAPSHOT")
-    shadow("org.slf4j:slf4j-nop:1.7.25")
+    shadow("org.slf4j:slf4j-nop:1.7.26")
 }
 
 shadowJar {
