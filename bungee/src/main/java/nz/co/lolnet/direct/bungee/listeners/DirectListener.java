@@ -56,12 +56,15 @@ public class DirectListener implements Listener {
         } else if (!serverData.isActive()) {
             user.sendMessage(Message.builder().type(Message.Type.INACTIVE).server(serverData.getName()).build());
             event.setCancelled(true);
+            Direct.getInstance().getLogger().info("{} was denied access to {}: {}", user.getName(), serverData.getName(), "Inactive");
         } else if (!DirectManager.isAccessible(user, serverData)) {
             user.sendMessage(Message.builder().type(Message.Type.RESTRICTED).server(serverData.getName()).build());
             event.setCancelled(true);
+            Direct.getInstance().getLogger().info("{} was denied access to {}: {}", user.getName(), serverData.getName(), "Restricted");
         } else if (!DirectManager.isProtocolSupported(user, serverData)) {
             user.sendMessage(Message.builder().type(Message.Type.INCOMPATIBLE).server(serverData.getName()).build());
             event.setCancelled(true);
+            Direct.getInstance().getLogger().info("{} was denied access to {}: {}", user.getName(), serverData.getName(), "Incompatible");
         }
     }
     
