@@ -32,7 +32,7 @@ repositories {
     jcenter()
     maven {
         name = "lolnet"
-        url = "https://api.lolnet.co.nz/maven"
+        url = "https://repo.lolnet.co.nz/maven"
     }
 }
 
