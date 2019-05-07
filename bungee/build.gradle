@@ -4,7 +4,7 @@ buildscript {
     }
     
     dependencies {
-        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.3")
+        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.4")
     }
 }
 
@@ -41,7 +41,7 @@ dependencies {
     shadow(project(path: ":common")) {
         exclude(module: "gson")
     }
-    provided("net.md-5:bungeecord-api:1.13-SNAPSHOT")
+    provided("net.md-5:bungeecord-api:1.14-SNAPSHOT")
     shadow("org.slf4j:slf4j-nop:1.7.26")
 }
 

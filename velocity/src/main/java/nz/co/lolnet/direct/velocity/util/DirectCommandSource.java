@@ -19,7 +19,7 @@ package nz.co.lolnet.direct.velocity.util;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.permission.Tristate;
 import net.kyori.text.Component;
-import net.kyori.text.serializer.ComponentSerializers;
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
 import nz.co.lolnet.direct.common.Direct;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
@@ -28,7 +28,7 @@ public class DirectCommandSource implements CommandSource {
     @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(@NonNull Component component) {
-        Direct.getInstance().getLogger().info(ComponentSerializers.LEGACY.serialize(component));
+        Direct.getInstance().getLogger().info(LegacyComponentSerializer.INSTANCE.serialize(component));
     }
     
     @Override

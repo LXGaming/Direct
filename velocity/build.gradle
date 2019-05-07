@@ -27,8 +27,8 @@ repositories {
 dependencies {
     compile(project(path: ":common"))
     provided(project(path: ":common", configuration: "provided"))
-    annotationProcessor("com.velocitypowered:velocity-api:1.0-SNAPSHOT")
-    provided("com.velocitypowered:velocity-api:1.0-SNAPSHOT")
+    annotationProcessor("com.velocitypowered:velocity-api:1.0.0-SNAPSHOT")
+    provided("com.velocitypowered:velocity-api:1.0.0-SNAPSHOT")
 }
 
 jar {
