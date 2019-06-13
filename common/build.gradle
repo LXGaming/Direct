@@ -15,7 +15,7 @@ apply plugin: "signing"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-group = "nz.co.lolnet"
+group = "io.github.lxgaming"
 archivesBaseName = "direct-common"
 version = version
 
@@ -30,10 +30,6 @@ configurations {
 
 repositories {
     jcenter()
-    maven {
-        name = "lolnet"
-        url = "https://repo.lolnet.co.nz/maven"
-    }
 }
 
 dependencies {
@@ -50,12 +46,12 @@ shadowJar {
     configurations = [project.configurations.shadow]
     exclude("server-ssl-cert.pem")
     exclude("Version.java.template")
-    relocate("com.mysql", "nz.co.lolnet.direct.lib.mysql")
-    relocate("com.zaxxer.hikari", "nz.co.lolnet.direct.lib.hikari")
-    relocate("me.gong.mcleaks", "nz.co.lolnet.direct.lib.mcleaks")
-    relocate("okhttp3", "nz.co.lolnet.direct.lib.okhttp3")
-    relocate("okio", "nz.co.lolnet.direct.lib.okio")
-    relocate("org.gjt", "nz.co.lolnet.direct.lib.gjt")
+    relocate("com.mysql", "io.github.lxgaming.direct.lib.mysql")
+    relocate("com.zaxxer.hikari", "io.github.lxgaming.direct.lib.hikari")
+    relocate("me.gong.mcleaks", "io.github.lxgaming.direct.lib.mcleaks")
+    relocate("okhttp3", "io.github.lxgaming.direct.lib.okhttp3")
+    relocate("okio", "io.github.lxgaming.direct.lib.okio")
+    relocate("org.gjt", "io.github.lxgaming.direct.lib.gjt")
 }
 
 jar {

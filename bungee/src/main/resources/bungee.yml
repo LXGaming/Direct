@@ -1,9 +1,9 @@
 name: ${name}
-main: nz.co.lolnet.direct.bungee.BungeePlugin
+main: io.github.lxgaming.direct.bungee.BungeePlugin
 version: ${version}
 description: Server Manager
 author: LX_Gaming
-website: https://www.lolnet.co.nz
+website: https://lxgaming.github.io/
 commands:
   Direct:
     description: Main plugin command.
