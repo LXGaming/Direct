@@ -1,16 +1,8 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    
-    dependencies {
-        classpath("com.github.jengelman.gradle.plugins:shadow:4.0.4")
-    }
+plugins {
+    id "com.github.johnrengelman.shadow" version "4.0.4"
+    id "java"
+    id "signing"
 }
-
-apply plugin: "com.github.johnrengelman.shadow"
-apply plugin: "java"
-apply plugin: "signing"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -30,6 +22,10 @@ configurations {
 
 repositories {
     jcenter()
+    maven {
+        name = "wesjd"
+        url = "https://nexus.wesjd.net/repository/thirdparty/"
+    }
 }
 
 dependencies {
@@ -39,19 +35,6 @@ dependencies {
     }
     shadow("me.gong:mcleaks-api:1.9.5-SNAPSHOT")
     shadow("mysql:mysql-connector-java:5.1.47")
-}
-
-shadowJar {
-    classifier = null
-    configurations = [project.configurations.shadow]
-    exclude("server-ssl-cert.pem")
-    exclude("Version.java.template")
-    relocate("com.mysql", "io.github.lxgaming.direct.lib.mysql")
-    relocate("com.zaxxer.hikari", "io.github.lxgaming.direct.lib.hikari")
-    relocate("me.gong.mcleaks", "io.github.lxgaming.direct.lib.mcleaks")
-    relocate("okhttp3", "io.github.lxgaming.direct.lib.okhttp3")
-    relocate("okio", "io.github.lxgaming.direct.lib.okio")
-    relocate("org.gjt", "io.github.lxgaming.direct.lib.gjt")
 }
 
 jar {
@@ -67,6 +50,19 @@ jar {
 processResources {
     from("LICENSE")
     rename("LICENSE", "LICENSE-" + archivesBaseName)
+}
+
+shadowJar {
+    classifier = null
+    configurations = [project.configurations.shadow]
+    exclude("server-ssl-cert.pem")
+    exclude("Version.java.template")
+    relocate("com.mysql", "io.github.lxgaming.direct.lib.mysql")
+    relocate("com.zaxxer.hikari", "io.github.lxgaming.direct.lib.hikari")
+    relocate("me.gong.mcleaks", "io.github.lxgaming.direct.lib.mcleaks")
+    relocate("okhttp3", "io.github.lxgaming.direct.lib.okhttp3")
+    relocate("okio", "io.github.lxgaming.direct.lib.okio")
+    relocate("org.gjt", "io.github.lxgaming.direct.lib.gjt")
 }
 
 task signJar {
