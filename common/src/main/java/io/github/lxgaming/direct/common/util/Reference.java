@@ -23,6 +23,6 @@ public class Reference {
     public static final String VERSION = "2.3.1";
     public static final String DESCRIPTION = "Server Management";
     public static final String AUTHORS = "LX_Gaming";
-    public static final String SOURCE = "https://github.com/LXGaming/Direct/";
+    public static final String SOURCE = "https://github.com/LXGaming/Direct";
     public static final String WEBSITE = "https://lxgaming.github.io/";
 }
