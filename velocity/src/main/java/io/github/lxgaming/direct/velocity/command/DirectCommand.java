@@ -17,46 +17,53 @@
 package io.github.lxgaming.direct.velocity.command;
 
 import com.google.common.collect.ImmutableList;
-import com.velocitypowered.api.command.Command;
-import com.velocitypowered.api.command.CommandSource;
-import net.kyori.text.TextComponent;
-import net.kyori.text.format.TextColor;
+import com.google.common.collect.Lists;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.velocitypowered.api.command.RawCommand;
 import io.github.lxgaming.direct.common.Direct;
-import io.github.lxgaming.direct.velocity.VelocityPlugin;
-import io.github.lxgaming.direct.velocity.util.VelocityToolbox;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import io.github.lxgaming.direct.common.entity.Source;
+import io.github.lxgaming.direct.common.manager.CommandManager;
+import io.github.lxgaming.direct.velocity.entity.VelocitySource;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class DirectCommand implements Command {
+public class DirectCommand implements RawCommand {
     
     @Override
-    public void execute(@NonNull CommandSource source, String[] args) {
-        if (args.length == 1 && args[0].equalsIgnoreCase("reload") && source.hasPermission("direct.command.reload")) {
-            VelocityPlugin.getInstance().getProxy().getScheduler().buildTask(VelocityPlugin.getInstance(), () -> {
-                if (Direct.getInstance().reloadDirect()) {
-                    source.sendMessage(VelocityToolbox.getTextPrefix().append(TextComponent.of("Configuration reloaded", TextColor.GREEN)));
-                } else {
-                    source.sendMessage(VelocityToolbox.getTextPrefix().append(TextComponent.of("An error occurred. Please check the console", TextColor.RED)));
-                }
-            }).schedule();
-            return;
-        }
+    public void execute(RawCommand.Invocation invocation) {
+        String arguments = getArguments(invocation);
+        VelocitySource source = new VelocitySource(invocation.source());
         
-        source.sendMessage(VelocityToolbox.getPluginInformation());
+        CommandManager.execute(source, arguments);
     }
     
     @Override
-    public List<String> suggest(@NonNull CommandSource source, String[] currentArgs) {
-        if (currentArgs.length == 0 && source.hasPermission("direct.command.reload")) {
-            return ImmutableList.of("reload");
+    public List<String> suggest(Invocation invocation) {
+        try {
+            return suggestAsync(invocation).get();
+        } catch (Exception ex) {
+            Direct.getInstance().getLogger().error("Encountered an error while getting suggestions", ex);
+            return ImmutableList.of();
         }
-        
-        return ImmutableList.of();
     }
     
     @Override
-    public boolean hasPermission(@NonNull CommandSource source, String[] args) {
-        return true;
+    public CompletableFuture<List<String>> suggestAsync(Invocation invocation) {
+        String arguments = getArguments(invocation);
+        VelocitySource source = new VelocitySource(invocation.source());
+        
+        ParseResults<Source> parseResults = CommandManager.DISPATCHER.parse(arguments, source);
+        return CommandManager.DISPATCHER.getCompletionSuggestions(parseResults)
+                .thenApply(suggestions -> Lists.transform(suggestions.getList(), Suggestion::getText));
+    }
+    
+    private String getArguments(Invocation invocation) {
+        if (invocation.alias().equalsIgnoreCase(CommandManager.getPrefix())) {
+            return invocation.arguments();
+        }
+        
+        return invocation.alias() + " " + invocation.arguments();
     }
 }

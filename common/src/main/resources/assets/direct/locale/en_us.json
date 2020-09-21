@@ -1,0 +1,44 @@
+{
+  "command.base": "{general.prefix} &9Use &a/{} help &9to view available commands.",
+  "command.error": [
+    "{general.prefix} &cAn error has occurred:",
+    "&c{}"
+  ],
+  "command.exception": "{general.prefix} &cAn error has occurred. Details are available in console.",
+  "command.invalid_arguments": "&cInvalid arguments: &f{}",
+  "command.no_permission": "&cYou do not have permission to execute this command!",
+  "command.not_found": "{general.prefix} &cCommand not found.",
+  "command.debug.disable": "{general.prefix} &cDebugging disabled",
+  "command.debug.enable": "{general.prefix} &aDebugging enabled",
+  "command.help": [
+    "&9> &a{}"
+  ],
+  "command.help.hover": [
+    "&bCommand: &2{}",
+    "&bDescription: &2{}",
+    "&bUsage: &2{}",
+    "&bPermission: &2{}",
+    "",
+    "&7Click to auto-complete."
+  ],
+  "command.reload.failure": "&cAn error occurred. Please check the console",
+  "command.reload.success": "&aSuccessfully reloaded",
+  "configuration.error": "{general.prefix} &cConfiguration error.",
+  "general.information": [
+    "&9&lDirect&r",
+    "    &8Version: &f{}",
+    "    &8Authors: &f{}",
+    "    &8Source: &9{}",
+    "    &8Website: &9{}"
+  ],
+  "general.prefix": "&9&l[Direct]",
+  "message.connect": "&8You have been connected to &b{}",
+  "message.disconnect": "&8You have been disconnected: &f{}",
+  "message.error": "&8An unexpected error occurred",
+  "message.fail": "&8Unable to find suitable server",
+  "message.inactive": "&b{} &8is not active",
+  "message.incompatible": "&b{} &8does not support your Minecraft version",
+  "message.kick": "&8You have been moved to &b{}&8: &f{}",
+  "message.removed": "&b{} &8is no longer publicly available",
+  "message.restricted": "&8You do not have permission to join &b{}"
+}

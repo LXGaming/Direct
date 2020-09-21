@@ -23,7 +23,6 @@ import io.github.lxgaming.direct.common.configuration.Config;
 import io.github.lxgaming.direct.common.configuration.category.StorageCategory;
 import io.github.lxgaming.direct.common.storage.Query;
 import io.github.lxgaming.direct.common.storage.Storage;
-import io.github.lxgaming.direct.common.util.Reference;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -40,11 +39,11 @@ public class MySQLStorage implements Storage {
             return hikariDataSource.isRunning();
         }
         
-        StorageCategory storage = Direct.getInstance().getConfig().map(Config::getStorage).orElseThrow(IllegalStateException::new);
+        StorageCategory storage = Direct.getInstance().getConfig().map(Config::getStorageCategory).orElseThrow(IllegalStateException::new);
         
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setPoolName(Reference.ID + "-hikari");
-        hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
+        hikariConfig.setPoolName(Direct.ID + "-mysql-hikari");
+        hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
         hikariConfig.setJdbcUrl(String.format("jdbc:%s://%s/%s", "mysql", storage.getAddress(), storage.getDatabase()));
         hikariConfig.setUsername(storage.getUsername());
         hikariConfig.setPassword(storage.getPassword());

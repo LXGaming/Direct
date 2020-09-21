@@ -16,14 +16,35 @@
 
 package io.github.lxgaming.direct.common.configuration.category;
 
+import com.google.gson.annotations.SerializedName;
+import io.github.lxgaming.direct.common.Direct;
+
 public class StorageCategory {
     
+    @SerializedName("engine")
+    private String engine = "mysql";
+    
+    @SerializedName("address")
     private String address = "localhost:3306";
-    private String database = "direct";
-    private String username = "direct";
+    
+    @SerializedName("database")
+    private String database = Direct.ID;
+    
+    @SerializedName("username")
+    private String username = Direct.ID;
+    
+    @SerializedName("password")
     private String password = "password";
+    
+    @SerializedName("maximumPoolSize")
     private int maximumPoolSize = 2;
+    
+    @SerializedName("minimumIdle")
     private int minimumIdle = 1;
+    
+    public String getEngine() {
+        return engine;
+    }
     
     public String getAddress() {
         return address;

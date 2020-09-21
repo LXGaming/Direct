@@ -16,76 +16,53 @@
 
 package io.github.lxgaming.direct.bungee.util;
 
+import io.github.lxgaming.direct.bungee.BungeePlugin;
+import io.github.lxgaming.direct.common.entity.Server;
+import io.github.lxgaming.direct.common.entity.Source;
+import io.github.lxgaming.direct.common.manager.DirectManager;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
-import io.github.lxgaming.direct.bungee.BungeePlugin;
-import io.github.lxgaming.direct.common.data.ServerData;
-import io.github.lxgaming.direct.common.manager.DirectManager;
-import io.github.lxgaming.direct.common.util.Reference;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 
 public class BungeeToolbox {
-    
-    public static ComponentBuilder getTextPrefix() {
-        ComponentBuilder componentBuilder = new ComponentBuilder("");
-        componentBuilder.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, getPluginInformation().create()));
-        componentBuilder.append("[" + Reference.NAME + "]").bold(true).color(ChatColor.BLUE);
-        componentBuilder.append(" ", ComponentBuilder.FormatRetention.NONE);
-        return componentBuilder;
-    }
-    
-    public static ComponentBuilder getPluginInformation() {
-        ComponentBuilder componentBuilder = new ComponentBuilder("")
-                .append(Reference.NAME).color(ChatColor.BLUE).bold(true).append("\n")
-                .append("    Version: ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.DARK_GRAY).append(Reference.VERSION).color(ChatColor.WHITE).append("\n")
-                .append("    Authors: ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.DARK_GRAY).append(Reference.AUTHORS).color(ChatColor.WHITE).append("\n")
-                .append("    Source: ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.DARK_GRAY).append(getURLClickEvent(Reference.SOURCE).create()).append("\n")
-                .append("    Website: ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.DARK_GRAY).append(getURLClickEvent(Reference.WEBSITE).create());
-        return componentBuilder;
-    }
-    
-    public static ComponentBuilder getURLClickEvent(String url) {
-        ComponentBuilder componentBuilder = new ComponentBuilder("");
-        componentBuilder.event(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-        componentBuilder.append(url).color(ChatColor.BLUE);
-        componentBuilder.append(" ", ComponentBuilder.FormatRetention.NONE);
-        return componentBuilder;
-    }
     
     public static String convertColor(String string) {
         return ChatColor.translateAlternateColorCodes('&', string);
     }
     
-    public static Optional<ServerInfo> getServer(ServerData serverData) {
-        if (serverData != null) {
-            return Optional.ofNullable(BungeePlugin.getInstance().getProxy().getServerInfo(serverData.getName()));
+    public static ServerInfo getLobby(Source source) {
+        Server server = DirectManager.getLobby(source);
+        if (server != null) {
+            return getServer(server);
         }
         
-        return Optional.empty();
+        return null;
     }
     
-    public static Optional<ServerData> getServer(ServerInfo serverInfo) {
-        if (serverInfo != null) {
-            return DirectManager.getServer(serverInfo.getName());
+    public static ServerInfo getServer(Server server) {
+        return BungeePlugin.getInstance().getProxy().getServerInfo(server.getName());
+    }
+    
+    public static Server getServer(net.md_5.bungee.api.connection.Server server) {
+        if (server != null) {
+            return getServer(server.getInfo());
         }
         
-        return Optional.empty();
+        return null;
     }
     
-    @SuppressWarnings("deprecation")
+    public static Server getServer(ServerInfo serverInfo) {
+        return DirectManager.getServer(serverInfo.getName());
+    }
+    
     public static Map<String, ServerInfo> getProxyServers() {
         return ProxyServer.getInstance().getConfig().getServers();
     }
     
-    @SuppressWarnings("deprecation")
     public static Collection<ListenerInfo> getProxyListeners() {
         return ProxyServer.getInstance().getConfig().getListeners();
     }

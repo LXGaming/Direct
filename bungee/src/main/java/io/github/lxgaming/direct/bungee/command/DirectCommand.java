@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package io.github.lxgaming.direct.common.configuration.category;
+package io.github.lxgaming.direct.bungee.command;
 
-import com.google.gson.annotations.SerializedName;
+import io.github.lxgaming.direct.bungee.entity.BungeeSource;
+import io.github.lxgaming.direct.common.manager.CommandManager;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.plugin.Command;
 
-public class LogCategory {
+public class DirectCommand extends Command {
     
-    @SerializedName("detectionMods")
-    private boolean detectionMods;
-    
-    @SerializedName("detectionModList")
-    private boolean detectionModList;
-    
-    public boolean isDetectionMods() {
-        return detectionMods;
+    public DirectCommand() {
+        super("direct");
     }
     
-    public boolean isDetectionModList() {
-        return detectionModList;
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        String arguments = String.join(" ", args);
+        BungeeSource source = new BungeeSource(sender);
+        
+        CommandManager.execute(source, arguments);
     }
 }

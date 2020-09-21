@@ -16,8 +16,8 @@
 
 package io.github.lxgaming.direct.common.storage;
 
-import io.github.lxgaming.direct.common.data.ModData;
-import io.github.lxgaming.direct.common.data.ServerData;
+import io.github.lxgaming.direct.common.entity.Mod;
+import io.github.lxgaming.direct.common.entity.Server;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,9 +26,9 @@ public interface Query {
     
     boolean createTables();
     
-    List<ModData> getMods();
+    List<Mod> getMods();
     
-    List<ServerData> getServers();
+    List<Server> getServers();
     
     boolean createLog(UUID uniqueId, String type, String details);
 }

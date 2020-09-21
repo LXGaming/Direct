@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Alex Thomson
+ * Copyright 2020 Alex Thomson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,39 @@
  * limitations under the License.
  */
 
-package io.github.lxgaming.direct.common.data;
+package io.github.lxgaming.direct.common.entity;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Set;
 
-public class ModData {
+public class Mod {
     
     private String id;
     private String name;
     private Set<String> execution;
     
-    public String getId() {
+    public @NonNull String getId() {
         return id;
     }
     
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
     
-    public String getName() {
+    public @NonNull String getName() {
         return name;
     }
     
-    public void setName(String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
     
-    public Set<String> getExecution() {
+    public @NonNull Set<String> getExecution() {
         return execution;
     }
     
-    public void setExecution(Set<String> execution) {
+    public void setExecution(@NonNull Set<String> execution) {
         this.execution = execution;
     }
 }

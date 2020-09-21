@@ -16,9 +16,12 @@
 
 package io.github.lxgaming.direct.common.storage.mysql;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.gson.JsonParseException;
 import io.github.lxgaming.direct.common.Direct;
-import io.github.lxgaming.direct.common.data.ModData;
-import io.github.lxgaming.direct.common.data.ServerData;
+import io.github.lxgaming.direct.common.entity.Mod;
+import io.github.lxgaming.direct.common.entity.Server;
 import io.github.lxgaming.direct.common.storage.Query;
 import io.github.lxgaming.direct.common.util.Toolbox;
 
@@ -83,23 +86,31 @@ public class MySQLQuery implements Query {
             
             return true;
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::createTables", ex);
+            Direct.getInstance().getLogger().error("Encountered an error while creating tables", ex);
             return false;
         }
     }
     
     @Override
-    public List<ModData> getMods() {
+    public List<Mod> getMods() {
         try (Connection connection = storage.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `mod`")) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    List<ModData> mods = Toolbox.newArrayList();
+                    List<Mod> mods = Lists.newArrayList();
                     while (resultSet.next()) {
-                        ModData modData = new ModData();
-                        modData.setId(resultSet.getString("id"));
-                        modData.setName(resultSet.getString("name"));
-                        modData.setExecution(Toolbox.buildElements(resultSet.getString("execution"), String.class).orElse(Toolbox.newHashSet()));
-                        mods.add(modData);
+                        Mod mod = new Mod();
+                        mod.setId(resultSet.getString("id"));
+                        mod.setName(resultSet.getString("name"));
+                        
+                        try {
+                            String[] execution = Toolbox.GSON.fromJson(resultSet.getString("execution"), String[].class);
+                            mod.setExecution(Sets.newHashSet(execution));
+                        } catch (JsonParseException ex) {
+                            Direct.getInstance().getLogger().error("Encountered an error while parsing execution for {} ({})", mod.getName(), mod.getId(), ex);
+                            mod.setExecution(Sets.newHashSet());
+                        }
+                        
+                        mods.add(mod);
                     }
                     
                     Direct.getInstance().getLogger().info("Found {} Mods in MySQL", mods.size());
@@ -107,29 +118,44 @@ public class MySQLQuery implements Query {
                 }
             }
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getMods", ex);
+            Direct.getInstance().getLogger().error("Encountered an error while getting mods", ex);
             return null;
         }
     }
     
     @Override
-    public List<ServerData> getServers() {
+    public List<Server> getServers() {
         try (Connection connection = storage.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `server`")) {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    List<ServerData> servers = Toolbox.newArrayList();
+                    List<Server> servers = Lists.newArrayList();
                     while (resultSet.next()) {
-                        ServerData serverData = new ServerData();
-                        serverData.setName(resultSet.getString("name"));
-                        serverData.setHost(resultSet.getString("host"));
-                        serverData.setPort(resultSet.getInt("port"));
-                        serverData.setDirectConnects(Toolbox.buildElements(resultSet.getString("direct_connects"), String.class).orElse(Toolbox.newHashSet()));
-                        serverData.setProtocolVersions(Toolbox.buildElements(resultSet.getString("protocol_versions"), Integer.class).orElse(Toolbox.newHashSet()));
-                        serverData.setMotd(resultSet.getString("motd"));
-                        serverData.setActive(resultSet.getBoolean("active"));
-                        serverData.setLobby(resultSet.getBoolean("lobby"));
-                        serverData.setRestricted(resultSet.getBoolean("restricted"));
-                        servers.add(serverData);
+                        Server server = new Server();
+                        server.setName(resultSet.getString("name"));
+                        server.setHost(resultSet.getString("host"));
+                        server.setPort(resultSet.getInt("port"));
+                        
+                        try {
+                            String[] directConnects = Toolbox.GSON.fromJson(resultSet.getString("direct_connects"), String[].class);
+                            server.setDirectConnects(Sets.newHashSet(directConnects));
+                        } catch (JsonParseException ex) {
+                            Direct.getInstance().getLogger().error("Encountered an error while parsing directConnects for {}", server.getName(), ex);
+                            server.setDirectConnects(Sets.newHashSet());
+                        }
+                        
+                        try {
+                            Integer[] protocolVersions = Toolbox.GSON.fromJson(resultSet.getString("protocol_versions"), Integer[].class);
+                            server.setProtocolVersions(Sets.newHashSet(protocolVersions));
+                        } catch (JsonParseException ex) {
+                            Direct.getInstance().getLogger().error("Encountered an error while parsing protocolVersions for {}", server.getName(), ex);
+                            server.setProtocolVersions(Sets.newHashSet());
+                        }
+                        
+                        server.setMotd(resultSet.getString("motd"));
+                        server.setActive(resultSet.getBoolean("active"));
+                        server.setLobby(resultSet.getBoolean("lobby"));
+                        server.setRestricted(resultSet.getBoolean("restricted"));
+                        servers.add(server);
                     }
                     
                     Direct.getInstance().getLogger().info("Found {} Servers in MySQL", servers.size());
@@ -137,7 +163,7 @@ public class MySQLQuery implements Query {
                 }
             }
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::getServers", ex);
+            Direct.getInstance().getLogger().error("Encountered an error while getting servers", ex);
             return null;
         }
     }
@@ -153,7 +179,7 @@ public class MySQLQuery implements Query {
                 return preparedStatement.executeUpdate() != 0;
             }
         } catch (SQLException ex) {
-            Direct.getInstance().getLogger().error("Encountered an error processing MySQLQuery::createLog", ex);
+            Direct.getInstance().getLogger().error("Encountered an error while creating log", ex);
             return false;
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Alex Thomson
+ * Copyright 2020 Alex Thomson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package io.github.lxgaming.direct.common.data;
+package io.github.lxgaming.direct.common.entity;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Set;
 
-public class ServerData {
+public class Server {
     
     private String name;
     private String host;
@@ -30,19 +32,19 @@ public class ServerData {
     private boolean lobby;
     private boolean restricted;
     
-    public String getName() {
+    public @NonNull String getName() {
         return name;
     }
     
-    public void setName(String name) {
+    public void setName(@NonNull String name) {
         this.name = name;
     }
     
-    public String getHost() {
+    public @NonNull String getHost() {
         return host;
     }
     
-    public void setHost(String host) {
+    public void setHost(@NonNull String host) {
         this.host = host;
     }
     
@@ -54,27 +56,27 @@ public class ServerData {
         this.port = port;
     }
     
-    public Set<String> getDirectConnects() {
+    public @NonNull Set<String> getDirectConnects() {
         return directConnects;
     }
     
-    public void setDirectConnects(Set<String> directConnects) {
+    public void setDirectConnects(@NonNull Set<String> directConnects) {
         this.directConnects = directConnects;
     }
     
-    public Set<Integer> getProtocolVersions() {
+    public @NonNull Set<Integer> getProtocolVersions() {
         return protocolVersions;
     }
     
-    public void setProtocolVersions(Set<Integer> protocolVersions) {
+    public void setProtocolVersions(@NonNull Set<Integer> protocolVersions) {
         this.protocolVersions = protocolVersions;
     }
     
-    public String getMotd() {
+    public @NonNull String getMotd() {
         return motd;
     }
     
-    public void setMotd(String motd) {
+    public void setMotd(@NonNull String motd) {
         this.motd = motd;
     }
     

@@ -16,72 +16,120 @@
 
 package io.github.lxgaming.direct.common;
 
+import com.google.common.base.Preconditions;
 import io.github.lxgaming.direct.common.configuration.Config;
 import io.github.lxgaming.direct.common.configuration.Configuration;
-import io.github.lxgaming.direct.common.data.Platform;
+import io.github.lxgaming.direct.common.configuration.category.StorageCategory;
+import io.github.lxgaming.direct.common.manager.CommandManager;
 import io.github.lxgaming.direct.common.manager.DirectManager;
-import io.github.lxgaming.direct.common.manager.MCLeaksManager;
+import io.github.lxgaming.direct.common.manager.LocaleManager;
 import io.github.lxgaming.direct.common.storage.Storage;
 import io.github.lxgaming.direct.common.storage.mysql.MySQLStorage;
-import io.github.lxgaming.direct.common.util.Logger;
-import io.github.lxgaming.direct.common.util.Reference;
+import io.github.lxgaming.direct.common.util.StringUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class Direct {
     
+    public static final String ID = "direct";
+    public static final String NAME = "Direct";
+    public static final String VERSION = "@version@";
+    public static final String DESCRIPTION = "Server Management";
+    public static final String AUTHORS = "LX_Gaming";
+    public static final String SOURCE = "https://github.com/LXGaming/Direct";
+    public static final String WEBSITE = "https://lxgaming.github.io/";
+    
     private static Direct instance;
-    private final Platform platform;
+    private static Platform platform;
     private final Logger logger;
     private final Configuration configuration;
-    private final Storage storage;
+    private Storage storage;
     
     public Direct(Platform platform) {
-        instance = this;
-        this.platform = platform;
-        this.logger = new Logger();
-        this.configuration = new Configuration();
-        this.storage = new MySQLStorage();
+        Direct.instance = this;
+        Direct.platform = platform;
+        this.logger = LoggerFactory.getLogger(Direct.NAME);
+        this.configuration = new Configuration(platform.getPath());
     }
     
-    public void loadDirect() {
+    public void load() {
         getLogger().info("Initializing...");
-        reloadDirect();
-        MCLeaksManager.buildMCLeaks();
-        getLogger().info("{} v{} has loaded", Reference.NAME, Reference.VERSION);
+        if (!reload()) {
+            getLogger().error("Failed to load");
+            return;
+        }
+        
+        LocaleManager.prepare();
+        CommandManager.prepare();
+        
+        getLogger().info("{} v{} has loaded", Direct.NAME, Direct.VERSION);
     }
     
-    public boolean reloadDirect() {
-        getConfiguration().loadConfiguration();
-        if (!getConfig().isPresent()) {
+    public boolean reload() {
+        if (!getConfiguration().loadConfiguration()) {
             return false;
         }
         
         getConfiguration().saveConfiguration();
-        if (getConfig().map(Config::isDebug).orElse(false)) {
-            getLogger().debug("Debug mode enabled");
-        } else {
-            getLogger().info("Debug mode disabled");
-        }
         
-        DirectManager.cleanDirect();
-        if (DirectManager.prepareDirect()) {
-            DirectManager.buildDirect();
-            getPlatform().registerServers();
-            getLogger().info("Successfully reloaded");
-            return true;
-        } else {
-            getLogger().error("Failed to reload");
+        try {
+            if (getStorage() != null && !getStorage().isClosed()) {
+                getLogger().warn("Closing {}", getStorage().getClass().getSimpleName());
+                getStorage().close();
+            }
+            
+            String engine = getConfig().map(Config::getStorageCategory).map(StorageCategory::getEngine).orElse(null);
+            if (StringUtils.isBlank(engine)) {
+                getLogger().warn("No storage engine configured.");
+                return true;
+            }
+            
+            if (engine.equalsIgnoreCase("mysql")) {
+                this.storage = new MySQLStorage();
+            } else {
+                getLogger().warn("Invalid storage engine configured.");
+                return true;
+            }
+            
+            if (!getStorage().connect()) {
+                throw new IllegalStateException("Connection failed");
+            }
+            
+            if (!getStorage().getQuery().createTables()) {
+                throw new IllegalStateException("Failed to create tables");
+            }
+            
+            if (DirectManager.prepare()) {
+                DirectManager.execute();
+                getPlatform().registerServers();
+                return true;
+            }
+            
+            return false;
+        } catch (Exception ex) {
+            getLogger().error("Encountered an error while configuring Storage", ex);
             return false;
         }
     }
     
-    public static Direct getInstance() {
+    private static <T> T check(@Nullable T instance) {
+        Preconditions.checkState(instance != null, "%s has not been initialized!", Direct.NAME);
         return instance;
     }
     
-    public Platform getPlatform() {
-        return platform;
+    public static boolean isAvailable() {
+        return instance != null;
+    }
+    
+    public static Direct getInstance() {
+        return check(instance);
+    }
+    
+    public static Platform getPlatform() {
+        return check(platform);
     }
     
     public Logger getLogger() {
@@ -92,12 +140,8 @@ public class Direct {
         return configuration;
     }
     
-    public Optional<Config> getConfig() {
-        if (getConfiguration() != null) {
-            return Optional.ofNullable(getConfiguration().getConfig());
-        }
-        
-        return Optional.empty();
+    public Optional<? extends Config> getConfig() {
+        return Optional.ofNullable(getConfiguration().getConfig());
     }
     
     public Storage getStorage() {

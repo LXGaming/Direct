@@ -1,4 +1,5 @@
 plugins {
+    id "com.github.johnrengelman.shadow"
     id "java"
     id "signing"
 }
@@ -11,11 +12,10 @@ archivesBaseName = "direct-velocity"
 version = version
 
 configurations {
-    provided {
-        compile.extendsFrom(provided)
-    }
-
-    compileJava.dependsOn(":common:build")
+    build.dependsOn("signJar")
+    compileJava.dependsOn(":direct-common:build")
+    jar.enabled = false
+    jar.dependsOn("shadowJar")
 }
 
 repositories {
@@ -27,25 +27,25 @@ repositories {
 }
 
 dependencies {
-    compile(project(path: ":common"))
-    provided(project(path: ":common", configuration: "provided"))
-    annotationProcessor("com.velocitypowered:velocity-api:1.0.0-SNAPSHOT")
-    provided("com.velocitypowered:velocity-api:1.0.0-SNAPSHOT")
-}
-
-jar {
-    from {
-        (configurations.compile - configurations.provided).findAll({
-            it.isDirectory() || it.name.endsWith(".jar")
-        }).collect({
-            it.isDirectory() ? it : zipTree(it)
-        })
+    shadow(project(path: ":direct-common")) {
+        exclude(module: "adventure-api")
+        exclude(module: "adventure-text-serializer-legacy")
+        exclude(module: "brigadier")
+        exclude(module: "checker-qual")
+        exclude(module: "gson")
+        exclude(module: "guava")
+        exclude(module: "slf4j-api")
     }
+    annotationProcessor("com.velocitypowered:velocity-api:${velocityVersion}")
+    compile("com.velocitypowered:velocity-api:${velocityVersion}")
 }
 
-processResources {
-    from("LICENSE")
-    rename("LICENSE", "LICENSE-" + archivesBaseName)
+shadowJar {
+    archiveClassifier.set(null)
+    configurations = [project.configurations.shadow]
+    relocate("com.google.protobuf", "io.github.lxgaming.direct.lib.protobuf")
+    relocate("com.mysql", "io.github.lxgaming.direct.lib.mysql")
+    relocate("com.zaxxer.hikari", "io.github.lxgaming.direct.lib.hikari")
 }
 
 task signJar {

@@ -1,3 +1,11 @@
 include "bungee"
 include "common"
 include "velocity"
+
+[
+    "bungee",
+    "common",
+    "velocity"
+].each {
+    findProject(":$it")?.name = "direct-$it"
+}

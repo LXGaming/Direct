@@ -16,6 +16,7 @@
 
 package io.github.lxgaming.direct.velocity;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
@@ -27,43 +28,41 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import io.github.lxgaming.direct.common.Direct;
-import io.github.lxgaming.direct.common.configuration.Config;
-import io.github.lxgaming.direct.common.data.Message;
-import io.github.lxgaming.direct.common.data.Platform;
-import io.github.lxgaming.direct.common.data.ServerData;
-import io.github.lxgaming.direct.common.data.User;
+import io.github.lxgaming.direct.common.Platform;
+import io.github.lxgaming.direct.common.entity.Locale;
+import io.github.lxgaming.direct.common.entity.Server;
+import io.github.lxgaming.direct.common.entity.Source;
+import io.github.lxgaming.direct.common.manager.CommandManager;
 import io.github.lxgaming.direct.common.manager.DirectManager;
-import io.github.lxgaming.direct.common.manager.MCLeaksManager;
-import io.github.lxgaming.direct.common.util.Logger;
-import io.github.lxgaming.direct.common.util.Reference;
+import io.github.lxgaming.direct.common.storage.Storage;
 import io.github.lxgaming.direct.common.util.Toolbox;
+import io.github.lxgaming.direct.common.util.text.adapter.LocaleAdapter;
 import io.github.lxgaming.direct.velocity.command.DirectCommand;
-import io.github.lxgaming.direct.velocity.command.LobbyCommand;
-import io.github.lxgaming.direct.velocity.command.ModListCommand;
-import io.github.lxgaming.direct.velocity.listener.DirectListener;
+import io.github.lxgaming.direct.velocity.entity.VelocitySource;
+import io.github.lxgaming.direct.velocity.listener.VelocityListener;
 import io.github.lxgaming.direct.velocity.util.DirectCommandSource;
 import io.github.lxgaming.direct.velocity.util.VelocityToolbox;
-import io.github.lxgaming.direct.velocity.util.VelocityUser;
-import org.slf4j.LoggerFactory;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 
 @Plugin(
-        id = Reference.ID,
-        name = Reference.NAME,
-        version = Reference.VERSION,
-        description = Reference.DESCRIPTION,
-        url = Reference.WEBSITE,
-        authors = {Reference.AUTHORS}
+        id = Direct.ID,
+        name = Direct.NAME,
+        version = Direct.VERSION,
+        description = Direct.DESCRIPTION,
+        url = Direct.WEBSITE,
+        authors = {Direct.AUTHORS}
 )
 public class VelocityPlugin implements Platform {
     
     private static VelocityPlugin instance;
     
     @Inject
-    ProxyServer proxy;
+    private ProxyServer proxy;
     
     @Inject
     @DataDirectory
@@ -72,57 +71,52 @@ public class VelocityPlugin implements Platform {
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
         instance = this;
-        Direct direct = new Direct(this);
-        direct.getLogger()
-                .add(Logger.Level.INFO, LoggerFactory.getLogger(Reference.NAME)::info)
-                .add(Logger.Level.WARN, LoggerFactory.getLogger(Reference.NAME)::warn)
-                .add(Logger.Level.ERROR, LoggerFactory.getLogger(Reference.NAME)::error)
-                .add(Logger.Level.DEBUG, message -> {
-                    if (Direct.getInstance().getConfig().map(Config::isDebug).orElse(false)) {
-                        LoggerFactory.getLogger(Reference.NAME).info(message);
-                    }
-                });
         
-        direct.loadDirect();
-        getProxy().getEventManager().register(getInstance(), new DirectListener());
-        getProxy().getCommandManager().register(new DirectCommand(), "direct");
-        getProxy().getCommandManager().register(new LobbyCommand(), "lobby", "hub");
-        getProxy().getCommandManager().register(new ModListCommand(), "modlist");
+        Direct direct = new Direct(this);
+        direct.load();
+        
+        getProxy().getCommandManager().register(
+                getProxy().getCommandManager()
+                        .metaBuilder(CommandManager.getPrefix())
+                        .aliases(CommandManager.getPlatformCommands().toArray(new String[0]))
+                        .build(),
+                new DirectCommand()
+        );
+        
+        getProxy().getEventManager().register(getInstance(), new VelocityListener());
     }
     
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
-        MCLeaksManager.shutdown();
-        Direct.getInstance().getStorage().close();
-        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
+        if (!Direct.isAvailable()) {
+            return;
+        }
+        
+        Storage storage = Direct.getInstance().getStorage();
+        if (storage != null && !storage.isClosed()) {
+            storage.close();
+        }
+        
+        Direct.getInstance().getLogger().info("{} v{} unloaded", Direct.NAME, Direct.VERSION);
     }
     
     @Override
     public void registerServers() {
         // Building
-        List<ServerInfo> proxyServers = Toolbox.newArrayList();
-        for (ServerData serverData : DirectManager.getServers()) {
-            if (Toolbox.isBlank(serverData.getName())) {
-                Direct.getInstance().getLogger().warn("Cannot build ServerInfo as the name is blank");
+        List<ServerInfo> proxyServers = Lists.newArrayList();
+        for (Server server : DirectManager.SERVERS) {
+            if (!server.isActive()) {
                 continue;
             }
             
-            if (Toolbox.isBlank(serverData.getHost()) || serverData.getPort() < 0 || serverData.getPort() > 65535) {
-                Direct.getInstance().getLogger().warn("Cannot build ServerInfo for {} as the address is invalid", serverData.getName());
-                continue;
-            }
-            
-            if (!serverData.isActive()) {
-                continue;
-            }
-            
-            InetSocketAddress address = Toolbox.parseAddress(serverData.getHost(), serverData.getPort()).orElse(null);
+            InetSocketAddress address = Toolbox.parseAddress(server.getHost(), server.getPort());
             if (address == null) {
-                Direct.getInstance().getLogger().warn("Cannot build ServerInfo for {} as the address couldn't be parsed", serverData.getName());
+                server.setActive(false);
+                Direct.getInstance().getLogger().warn("Failed to parse address for server {}", server.getName());
                 continue;
             }
             
-            ServerInfo serverInfo = new ServerInfo(serverData.getName(), address);
+            ServerInfo serverInfo = new ServerInfo(server.getName(), address);
             proxyServers.add(serverInfo);
         }
         
@@ -137,47 +131,57 @@ public class VelocityPlugin implements Platform {
         
         // Players
         for (Player player : getProxy().getAllPlayers()) {
-            User user = VelocityUser.of(player.getUniqueId());
-            ServerData serverData = user.getCurrentServer().orElse(null);
-            Message.Builder messageBuilder = Message.builder();
-            if (serverData == null) {
-                messageBuilder.type(Message.Type.REMOVED);
-            } else if (!DirectManager.isAccessible(user, serverData)) {
-                messageBuilder.type(Message.Type.RESTRICTED).server(serverData.getName());
-            } else if (!DirectManager.isProtocolSupported(user, serverData)) {
-                messageBuilder.type(Message.Type.INCOMPATIBLE).server(serverData.getName());
+            Source source = new VelocitySource(player);
+            
+            Server currentServer = source.getCurrentServer();
+            if (currentServer == null) {
+                LocaleAdapter.sendSystemMessage(source, Locale.MESSAGE_REMOVED);
+            } else if (!DirectManager.isAccessible(source, currentServer)) {
+                LocaleAdapter.sendSystemMessage(source, Locale.MESSAGE_RESTRICTED, currentServer.getName());
+            } else if (!DirectManager.isProtocolSupported(source, currentServer)) {
+                LocaleAdapter.sendSystemMessage(source, Locale.MESSAGE_INCOMPATIBLE, currentServer.getName());
             } else {
                 continue;
             }
             
-            RegisteredServer lobby = DirectManager.getLobby(user).flatMap(VelocityToolbox::getServer).orElse(null);
-            if (lobby != null) {
-                player.createConnectionRequest(lobby).fireAndForget();
-                user.sendMessage(messageBuilder.build());
-            } else {
-                user.disconnect(Message.builder().type(Message.Type.FAIL).build());
+            RegisteredServer server = VelocityToolbox.getLobby(source);
+            if (server != null) {
+                player.createConnectionRequest(server).fireAndForget();
+                continue;
             }
+            
+            LocaleAdapter.disconnect(source, Locale.MESSAGE_FAIL);
         }
     }
     
     @Override
-    public void executeAsync(Runnable runnable) {
+    public void executeAsync(@NonNull Runnable runnable) {
         getProxy().getScheduler().buildTask(getInstance(), runnable).schedule();
     }
     
     @Override
-    public boolean executeCommand(String command) {
+    public boolean executeCommand(@NonNull String command) {
         return getProxy().getCommandManager().execute(new DirectCommandSource(), command);
     }
     
     @Override
-    public Platform.Type getType() {
-        return Type.VELOCITY;
+    public @NonNull Collection<String> getUsernames() {
+        List<String> usernames = Lists.newArrayList();
+        for (Player player : getProxy().getAllPlayers()) {
+            usernames.add(player.getUsername());
+        }
+        
+        return usernames;
     }
     
     @Override
-    public Path getPath() {
+    public @NonNull Path getPath() {
         return path;
+    }
+    
+    @Override
+    public @NonNull Type getType() {
+        return Type.VELOCITY;
     }
     
     public static VelocityPlugin getInstance() {

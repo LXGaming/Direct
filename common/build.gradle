@@ -1,7 +1,7 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "4.0.4"
     id "java"
-    id "signing"
+    id "java-library"
+    id "net.kyori.blossom"
 }
 
 sourceCompatibility = 1.8
@@ -11,88 +11,34 @@ group = "io.github.lxgaming"
 archivesBaseName = "direct-common"
 version = version
 
-configurations {
-    provided {
-        compile.extendsFrom(provided)
-    }
+blossom {
+    replaceToken("@version@", version)
+}
 
-    jar.enabled = false
-    jar.dependsOn("shadowJar")
+configurations {
 }
 
 repositories {
-    jcenter()
-    maven {
-        name = "wesjd"
-        url = "https://nexus.wesjd.net/repository/thirdparty/"
-    }
 }
 
 dependencies {
-    provided("com.google.code.gson:gson:2.8.5")
-    shadow("com.zaxxer:HikariCP:3.3.1") {
-        exclude(module: "slf4j-api")
-    }
-    shadow("me.gong:mcleaks-api:1.9.5-SNAPSHOT")
-    shadow("mysql:mysql-connector-java:5.1.47")
-}
-
-jar {
-    from {
-        (configurations.compile - configurations.provided).findAll({
-            it.isDirectory() || it.name.endsWith(".jar")
-        }).collect({
-            it.isDirectory() ? it : zipTree(it)
-        })
-    }
+    api("com.google.code.gson:gson:${gsonVersion}")
+    api("com.google.guava:guava:${guavaVersion}")
+    api("com.mojang:brigadier:${brigadierVersion}")
+    api("com.zaxxer:HikariCP:${hikariCPVersion}")
+    api("mysql:mysql-connector-java:${mysqlVersion}")
+    api("net.kyori:adventure-api:${adventureVersion}")
+    api("net.kyori:adventure-text-serializer-legacy:${adventureVersion}")
+    api("org.checkerframework:checker-qual:${checkerqualVersion}")
+    testCompile("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    api("org.slf4j:slf4j-api:${slf4jVersion}")
 }
 
 processResources {
-    from("LICENSE")
-    rename("LICENSE", "LICENSE-" + archivesBaseName)
+    from("../LICENSE")
+    rename("LICENSE", "LICENSE-Direct")
 }
 
-shadowJar {
-    classifier = null
-    configurations = [project.configurations.shadow]
-    exclude("server-ssl-cert.pem")
-    exclude("Version.java.template")
-    relocate("com.mysql", "io.github.lxgaming.direct.lib.mysql")
-    relocate("com.zaxxer.hikari", "io.github.lxgaming.direct.lib.hikari")
-    relocate("me.gong.mcleaks", "io.github.lxgaming.direct.lib.mcleaks")
-    relocate("okhttp3", "io.github.lxgaming.direct.lib.okhttp3")
-    relocate("okio", "io.github.lxgaming.direct.lib.okio")
-    relocate("org.gjt", "io.github.lxgaming.direct.lib.gjt")
-}
-
-task signJar {
-    doFirst {
-        if (!project.hasProperty("signing.keyStorePath") || !project.hasProperty("signing.secretKeyRingFile")) {
-            project.logger.warn("========== [WARNING] ==========")
-            project.logger.warn("")
-            project.logger.warn("   This build is not signed!   ")
-            project.logger.warn("")
-            project.logger.warn("========== [WARNING] ==========")
-            throw new StopExecutionException()
-        }
-    }
-
-    doLast {
-        configurations.archives.allArtifacts.files.each {
-            ant.signjar(
-                jar: it,
-                alias: project.property("signing.alias"),
-                storepass: project.property("signing.keyStorePassword"),
-                keystore: project.property("signing.keyStorePath"),
-                keypass: project.property("signing.keyStorePassword"),
-                preservelastmodified: project.property("signing.preserveLastModified"),
-                tsaurl: project.property("signing.timestampAuthority"),
-                digestalg: project.property("signing.digestAlgorithm")
-            )
-            project.logger.lifecycle("JAR Signed: " + it.name)
-
-            signing.sign(it)
-            project.logger.lifecycle("PGP Signed: " + it.name)
-        }
-    }
+test {
+    useJUnitPlatform()
 }

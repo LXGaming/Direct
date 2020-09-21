@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Alex Thomson
+ * Copyright 2020 Alex Thomson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,46 +14,46 @@
  * limitations under the License.
  */
 
-package io.github.lxgaming.direct.common.data;
+package io.github.lxgaming.direct.common;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 public interface Platform {
     
     void registerServers();
     
-    void executeAsync(Runnable runnable);
+    void executeAsync(@NonNull Runnable runnable);
     
-    boolean executeCommand(String command);
+    boolean executeCommand(@NonNull String command);
     
-    Type getType();
+    @NonNull Collection<String> getUsernames();
     
-    Path getPath();
+    @NonNull Path getPath();
+    
+    @NonNull Type getType();
     
     enum Type {
         
-        BUNGEE("bungeecord", "BungeeCord"),
-        VELOCITY("velocity", "Velocity");
+        BUNGEECORD("BungeeCord"),
+        VELOCITY("Velocity");
         
-        private final String id;
         private final String name;
         
-        Type(String id, String name) {
-            this.id = id;
+        Type(String name) {
             this.name = name;
         }
         
-        public String getId() {
-            return id;
-        }
-        
+        @NonNull
         public String getName() {
             return name;
         }
         
         @Override
         public String toString() {
-            return name();
+            return name().toLowerCase();
         }
     }
 }

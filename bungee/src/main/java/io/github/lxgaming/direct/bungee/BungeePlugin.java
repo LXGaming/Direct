@@ -16,32 +16,34 @@
 
 package io.github.lxgaming.direct.bungee;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import io.github.lxgaming.direct.bungee.command.DirectCommand;
+import io.github.lxgaming.direct.bungee.command.LobbyCommand;
+import io.github.lxgaming.direct.bungee.entity.BungeeSource;
+import io.github.lxgaming.direct.bungee.listener.BungeeListener;
+import io.github.lxgaming.direct.bungee.util.BungeeToolbox;
+import io.github.lxgaming.direct.bungee.util.DirectCommandSender;
+import io.github.lxgaming.direct.common.Direct;
+import io.github.lxgaming.direct.common.Platform;
+import io.github.lxgaming.direct.common.entity.Locale;
+import io.github.lxgaming.direct.common.entity.Server;
+import io.github.lxgaming.direct.common.entity.Source;
+import io.github.lxgaming.direct.common.manager.DirectManager;
+import io.github.lxgaming.direct.common.storage.Storage;
+import io.github.lxgaming.direct.common.util.Toolbox;
+import io.github.lxgaming.direct.common.util.text.adapter.LocaleAdapter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
-import io.github.lxgaming.direct.bungee.commands.DirectCommand;
-import io.github.lxgaming.direct.bungee.commands.LobbyCommand;
-import io.github.lxgaming.direct.bungee.commands.ModListCommand;
-import io.github.lxgaming.direct.bungee.listeners.DirectListener;
-import io.github.lxgaming.direct.bungee.util.BungeeToolbox;
-import io.github.lxgaming.direct.bungee.util.BungeeUser;
-import io.github.lxgaming.direct.bungee.util.DirectCommandSender;
-import io.github.lxgaming.direct.common.Direct;
-import io.github.lxgaming.direct.common.configuration.Config;
-import io.github.lxgaming.direct.common.data.Message;
-import io.github.lxgaming.direct.common.data.Platform;
-import io.github.lxgaming.direct.common.data.ServerData;
-import io.github.lxgaming.direct.common.data.User;
-import io.github.lxgaming.direct.common.manager.DirectManager;
-import io.github.lxgaming.direct.common.manager.MCLeaksManager;
-import io.github.lxgaming.direct.common.util.Logger;
-import io.github.lxgaming.direct.common.util.Reference;
-import io.github.lxgaming.direct.common.util.Toolbox;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.net.InetSocketAddress;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class BungeePlugin extends Plugin implements Platform {
@@ -51,57 +53,55 @@ public class BungeePlugin extends Plugin implements Platform {
     @Override
     public void onEnable() {
         instance = this;
-        Direct direct = new Direct(this);
-        direct.getLogger()
-                .add(Logger.Level.INFO, getLogger()::info)
-                .add(Logger.Level.WARN, getLogger()::warning)
-                .add(Logger.Level.ERROR, getLogger()::severe)
-                .add(Logger.Level.DEBUG, message -> {
-                    if (Direct.getInstance().getConfig().map(Config::isDebug).orElse(false)) {
-                        getLogger().info(message);
-                    }
-                });
         
-        direct.loadDirect();
+        if (getProxy().getName().equalsIgnoreCase("BungeeCord")) {
+            getLogger().severe("\n\n"
+                    + "  BungeeCord is not supported - https://github.com/SpigotMC/BungeeCord/pull/1877\n"
+                    + "\n"
+                    + "  Use Waterfall - https://github.com/PaperMC/Waterfall\n"
+            );
+            return;
+        }
+        
+        Direct direct = new Direct(this);
+        direct.load();
+        
         getProxy().getPluginManager().registerCommand(getInstance(), new DirectCommand());
         getProxy().getPluginManager().registerCommand(getInstance(), new LobbyCommand());
-        getProxy().getPluginManager().registerCommand(getInstance(), new ModListCommand());
-        getProxy().getPluginManager().registerListener(getInstance(), new DirectListener());
+        getProxy().getPluginManager().registerListener(getInstance(), new BungeeListener());
     }
     
     @Override
     public void onDisable() {
-        MCLeaksManager.shutdown();
-        Direct.getInstance().getStorage().close();
-        Direct.getInstance().getLogger().info("{} v{} unloaded", Reference.NAME, Reference.VERSION);
+        if (!Direct.isAvailable()) {
+            return;
+        }
+        
+        Storage storage = Direct.getInstance().getStorage();
+        if (storage != null && !storage.isClosed()) {
+            storage.close();
+        }
+        
+        Direct.getInstance().getLogger().info("{} v{} unloaded", Direct.NAME, Direct.VERSION);
     }
     
     @Override
     public void registerServers() {
         // Building
-        Map<String, ServerInfo> proxyServers = Toolbox.newHashMap();
-        for (ServerData serverData : DirectManager.getServers()) {
-            if (Toolbox.isBlank(serverData.getName())) {
-                Direct.getInstance().getLogger().warn("Cannot build ServerInfo as the name is blank");
+        Map<String, ServerInfo> proxyServers = Maps.newHashMap();
+        for (Server server : DirectManager.SERVERS) {
+            if (!server.isActive()) {
                 continue;
             }
             
-            if (Toolbox.isBlank(serverData.getHost()) || serverData.getPort() < 0 || serverData.getPort() > 65535) {
-                Direct.getInstance().getLogger().warn("Cannot build ServerInfo for {} as the address is invalid", serverData.getName());
-                continue;
-            }
-            
-            if (!serverData.isActive()) {
-                continue;
-            }
-            
-            InetSocketAddress address = Toolbox.parseAddress(serverData.getHost(), serverData.getPort()).orElse(null);
+            InetSocketAddress address = Toolbox.parseAddress(server.getHost(), server.getPort());
             if (address == null) {
-                Direct.getInstance().getLogger().warn("Cannot build ServerInfo for {} as the address couldn't be parsed", serverData.getName());
+                server.setActive(false);
+                Direct.getInstance().getLogger().warn("Failed to parse address for server {}", server.getName());
                 continue;
             }
             
-            ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(serverData.getName(), address, BungeeToolbox.convertColor(serverData.getMotd()), serverData.isRestricted());
+            ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(server.getName(), address, BungeeToolbox.convertColor(server.getMotd()), server.isRestricted());
             if (serverInfo == null) {
                 continue;
             }
@@ -116,37 +116,37 @@ public class BungeePlugin extends Plugin implements Platform {
         for (ListenerInfo listenerInfo : BungeeToolbox.getProxyListeners()) {
             // Priority
             listenerInfo.getServerPriority().clear();
-            listenerInfo.getServerPriority().addAll(DirectManager.getServerPriority());
+            listenerInfo.getServerPriority().addAll(DirectManager.SERVER_PRIORITY);
             
             // Forced Hosts
             listenerInfo.getForcedHosts().clear();
-            listenerInfo.getForcedHosts().putAll(DirectManager.getForcedHosts());
+            listenerInfo.getForcedHosts().putAll(DirectManager.FORCED_HOSTS);
         }
         
         Direct.getInstance().getLogger().info("Successfully registered {} Servers", proxyServers.size());
         
         // Players
         for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
-            User user = BungeeUser.of(proxiedPlayer.getUniqueId());
-            ServerData serverData = user.getCurrentServer().orElse(null);
-            Message.Builder messageBuilder = Message.builder();
-            if (serverData == null) {
-                messageBuilder.type(Message.Type.REMOVED);
-            } else if (!DirectManager.isAccessible(user, serverData)) {
-                messageBuilder.type(Message.Type.RESTRICTED).server(serverData.getName());
-            } else if (!DirectManager.isProtocolSupported(user, serverData)) {
-                messageBuilder.type(Message.Type.INCOMPATIBLE).server(serverData.getName());
+            Source source = new BungeeSource(proxiedPlayer);
+            
+            Server currentServer = source.getCurrentServer();
+            if (currentServer == null) {
+                LocaleAdapter.sendSystemMessage(source, Locale.MESSAGE_REMOVED);
+            } else if (!DirectManager.isAccessible(source, currentServer)) {
+                LocaleAdapter.sendSystemMessage(source, Locale.MESSAGE_RESTRICTED, currentServer.getName());
+            } else if (!DirectManager.isProtocolSupported(source, currentServer)) {
+                LocaleAdapter.sendSystemMessage(source, Locale.MESSAGE_INCOMPATIBLE, currentServer.getName());
             } else {
                 continue;
             }
             
-            ServerInfo lobby = DirectManager.getLobby(user).flatMap(BungeeToolbox::getServer).orElse(null);
-            if (lobby != null) {
-                proxiedPlayer.connect(lobby);
-                user.sendMessage(messageBuilder.build());
-            } else {
-                user.disconnect(Message.builder().type(Message.Type.FAIL).build());
+            ServerInfo server = BungeeToolbox.getLobby(source);
+            if (server != null) {
+                proxiedPlayer.connect(server);
+                continue;
             }
+            
+            LocaleAdapter.disconnect(source, Locale.MESSAGE_FAIL);
         }
     }
     
@@ -161,13 +161,23 @@ public class BungeePlugin extends Plugin implements Platform {
     }
     
     @Override
-    public Platform.Type getType() {
-        return Type.BUNGEE;
+    public @NonNull Collection<String> getUsernames() {
+        List<String> usernames = Lists.newArrayList();
+        for (ProxiedPlayer player : getProxy().getPlayers()) {
+            usernames.add(player.getName());
+        }
+        
+        return usernames;
     }
     
     @Override
-    public Path getPath() {
+    public @NonNull Path getPath() {
         return getDataFolder().toPath();
+    }
+    
+    @Override
+    public @NonNull Type getType() {
+        return Type.BUNGEECORD;
     }
     
     public static BungeePlugin getInstance() {

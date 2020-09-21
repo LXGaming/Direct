@@ -16,10 +16,10 @@
 
 package io.github.lxgaming.direct.bungee.util;
 
+import io.github.lxgaming.direct.common.Direct;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
-import io.github.lxgaming.direct.common.util.Reference;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -28,16 +28,14 @@ public class DirectCommandSender implements CommandSender {
     
     @Override
     public String getName() {
-        return Reference.NAME;
+        return Direct.NAME;
     }
     
-    @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(String message) {
         ProxyServer.getInstance().getLogger().info(message);
     }
     
-    @SuppressWarnings("deprecation")
     @Override
     public void sendMessages(String... messages) {
         for (String message : messages) {

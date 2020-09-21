@@ -16,45 +16,31 @@
 
 package io.github.lxgaming.direct.common.configuration;
 
+import com.google.gson.annotations.SerializedName;
+import io.github.lxgaming.direct.common.configuration.category.GeneralCategory;
 import io.github.lxgaming.direct.common.configuration.category.LogCategory;
-import io.github.lxgaming.direct.common.configuration.category.MCLeaksCategory;
-import io.github.lxgaming.direct.common.configuration.category.MessageCategory;
 import io.github.lxgaming.direct.common.configuration.category.StorageCategory;
 
 public class Config {
     
-    private boolean debug = false;
-    private long kickMessageDelay = 1000L;
-    private LogCategory log = new LogCategory();
-    private MCLeaksCategory mcLeaks = new MCLeaksCategory();
-    private MessageCategory messages = new MessageCategory();
-    private StorageCategory storage = new StorageCategory();
+    @SerializedName("general")
+    private GeneralCategory generalCategory = new GeneralCategory();
     
-    public boolean isDebug() {
-        return debug;
+    @SerializedName("log")
+    private LogCategory logCategory = new LogCategory();
+    
+    @SerializedName("storage")
+    private StorageCategory storageCategory = new StorageCategory();
+    
+    public GeneralCategory getGeneralCategory() {
+        return generalCategory;
     }
     
-    public void setDebug(boolean debug) {
-        this.debug = debug;
+    public LogCategory getLogCategory() {
+        return logCategory;
     }
     
-    public long getKickMessageDelay() {
-        return kickMessageDelay;
-    }
-    
-    public LogCategory getLog() {
-        return log;
-    }
-    
-    public MCLeaksCategory getMcLeaks() {
-        return mcLeaks;
-    }
-    
-    public MessageCategory getMessages() {
-        return messages;
-    }
-    
-    public StorageCategory getStorage() {
-        return storage;
+    public StorageCategory getStorageCategory() {
+        return storageCategory;
     }
 }
