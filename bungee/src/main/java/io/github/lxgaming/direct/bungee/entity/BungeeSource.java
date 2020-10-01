@@ -22,7 +22,7 @@ import io.github.lxgaming.direct.common.entity.Source;
 import io.github.lxgaming.direct.common.util.Toolbox;
 import net.kyori.adventure.audience.MessageType;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.bungeecord.BungeeCordComponentSerializer;
+import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -94,7 +94,7 @@ public class BungeeSource implements Source {
     @Override
     public void disconnect(@NonNull Component component) {
         if (commandSender instanceof ProxiedPlayer) {
-            ((ProxiedPlayer) commandSender).disconnect(BungeeCordComponentSerializer.get().serialize(component));
+            ((ProxiedPlayer) commandSender).disconnect(BungeeComponentSerializer.get().serialize(component));
             return;
         }
         
@@ -104,26 +104,26 @@ public class BungeeSource implements Source {
     @Override
     public void sendActionBar(@NonNull Component component) {
         if (!(commandSender instanceof ProxiedPlayer)) {
-            commandSender.sendMessage(BungeeCordComponentSerializer.get().serialize(component));
+            commandSender.sendMessage(BungeeComponentSerializer.get().serialize(component));
             return;
         }
         
         ProxiedPlayer player = (ProxiedPlayer) commandSender;
-        player.sendMessage(ChatMessageType.ACTION_BAR, BungeeCordComponentSerializer.get().serialize(component));
+        player.sendMessage(ChatMessageType.ACTION_BAR, BungeeComponentSerializer.get().serialize(component));
     }
     
     @Override
     public void sendMessage(Component component, MessageType messageType) {
         if (!(commandSender instanceof ProxiedPlayer)) {
-            commandSender.sendMessage(BungeeCordComponentSerializer.get().serialize(component));
+            commandSender.sendMessage(BungeeComponentSerializer.get().serialize(component));
             return;
         }
         
         ProxiedPlayer player = (ProxiedPlayer) commandSender;
         if (messageType == MessageType.CHAT) {
-            player.sendMessage(ChatMessageType.CHAT, BungeeCordComponentSerializer.get().serialize(component));
+            player.sendMessage(ChatMessageType.CHAT, BungeeComponentSerializer.get().serialize(component));
         } else if (messageType == MessageType.SYSTEM) {
-            player.sendMessage(ChatMessageType.SYSTEM, BungeeCordComponentSerializer.get().serialize(component));
+            player.sendMessage(ChatMessageType.SYSTEM, BungeeComponentSerializer.get().serialize(component));
         } else {
             throw new UnsupportedOperationException(String.format("%s is not supported", messageType));
         }
