@@ -32,11 +32,13 @@ public class DirectCommandSender implements CommandSender {
     }
     
     @Override
+    @Deprecated
     public void sendMessage(String message) {
         ProxyServer.getInstance().getLogger().info(message);
     }
     
     @Override
+    @Deprecated
     public void sendMessages(String... messages) {
         for (String message : messages) {
             sendMessage(message);

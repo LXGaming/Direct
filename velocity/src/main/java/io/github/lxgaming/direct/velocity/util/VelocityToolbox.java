@@ -22,12 +22,12 @@ import io.github.lxgaming.direct.common.entity.Source;
 import io.github.lxgaming.direct.common.manager.DirectManager;
 import io.github.lxgaming.direct.velocity.VelocityPlugin;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 public class VelocityToolbox {
     
     public static String serializePlain(Component component) {
-        return PlainComponentSerializer.plain().serialize(component);
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
     
     public static RegisteredServer getLobby(Source source) {
