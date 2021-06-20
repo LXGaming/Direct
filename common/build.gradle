@@ -1,5 +1,4 @@
 plugins {
-    id "java"
     id "java-library"
     id "net.kyori.blossom"
 }
@@ -7,9 +6,7 @@ plugins {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-group = "io.github.lxgaming"
 archivesBaseName = "direct-common"
-version = version
 
 blossom {
     replaceToken("@version@", version)
@@ -30,7 +27,7 @@ dependencies {
     api("net.kyori:adventure-api:${adventureVersion}")
     api("net.kyori:adventure-text-serializer-legacy:${adventureVersion}")
     api("org.checkerframework:checker-qual:${checkerqualVersion}")
-    testCompile("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
     api("org.slf4j:slf4j-api:${slf4jVersion}")
 }
 

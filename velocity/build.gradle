@@ -1,29 +1,16 @@
 plugins {
     id "com.github.johnrengelman.shadow"
-    id "java"
-    id "signing"
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-group = "io.github.lxgaming"
 archivesBaseName = "direct-velocity"
-version = version
 
 configurations {
-    build.dependsOn("signJar")
-    compileJava.dependsOn(":direct-common:build")
-    jar.enabled = false
-    jar.dependsOn("shadowJar")
 }
 
 repositories {
-    jcenter()
-    maven {
-        name = "velocity"
-        url = "https://repo.velocitypowered.com/snapshots"
-    }
 }
 
 dependencies {
@@ -37,7 +24,20 @@ dependencies {
         exclude(module: "slf4j-api")
     }
     annotationProcessor("com.velocitypowered:velocity-api:${velocityVersion}")
-    compile("com.velocitypowered:velocity-api:${velocityVersion}")
+    compileOnly("com.velocitypowered:velocity-api:${velocityVersion}")
+}
+
+build {
+    dependsOn("signJar")
+}
+
+compileJava {
+    dependsOn(":direct-common:build")
+}
+
+jar {
+    enabled = false
+    dependsOn("shadowJar")
 }
 
 shadowJar {
@@ -46,36 +46,4 @@ shadowJar {
     relocate("com.google.protobuf", "io.github.lxgaming.direct.lib.protobuf")
     relocate("com.mysql", "io.github.lxgaming.direct.lib.mysql")
     relocate("com.zaxxer.hikari", "io.github.lxgaming.direct.lib.hikari")
-}
-
-task signJar {
-    doFirst {
-        if (!project.hasProperty("signing.keyStorePath") || !project.hasProperty("signing.secretKeyRingFile")) {
-            project.logger.warn("========== [WARNING] ==========")
-            project.logger.warn("")
-            project.logger.warn("   This build is not signed!   ")
-            project.logger.warn("")
-            project.logger.warn("========== [WARNING] ==========")
-            throw new StopExecutionException()
-        }
-    }
-
-    doLast {
-        configurations.archives.allArtifacts.files.each {
-            ant.signjar(
-                jar: it,
-                alias: project.property("signing.alias"),
-                storepass: project.property("signing.keyStorePassword"),
-                keystore: project.property("signing.keyStorePath"),
-                keypass: project.property("signing.keyStorePassword"),
-                preservelastmodified: project.property("signing.preserveLastModified"),
-                tsaurl: project.property("signing.timestampAuthority"),
-                digestalg: project.property("signing.digestAlgorithm")
-            )
-            project.logger.lifecycle("JAR Signed: " + it.name)
-
-            signing.sign(it)
-            project.logger.lifecycle("PGP Signed: " + it.name)
-        }
-    }
 }
