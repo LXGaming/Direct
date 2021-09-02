@@ -19,16 +19,15 @@ package io.github.lxgaming.direct.velocity.util;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.permission.Tristate;
 import io.github.lxgaming.direct.common.Direct;
-import net.kyori.text.Component;
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class DirectCommandSource implements CommandSource {
     
-    @SuppressWarnings("deprecation")
     @Override
     public void sendMessage(@NonNull Component component) {
-        Direct.getInstance().getLogger().info(LegacyComponentSerializer.INSTANCE.serialize(component));
+        Direct.getInstance().getLogger().info(LegacyComponentSerializer.legacySection().serialize(component));
     }
     
     @Override

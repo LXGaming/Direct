@@ -161,7 +161,12 @@ public class VelocityPlugin implements Platform {
     
     @Override
     public boolean executeCommand(@NonNull String command) {
-        return getProxy().getCommandManager().execute(new DirectCommandSource(), command);
+        // TODO Fix this correctly
+        try {
+            return getProxy().getCommandManager().executeAsync(new DirectCommandSource(), command).get();
+        } catch (Exception ex) {
+            return false;
+        }
     }
     
     @Override

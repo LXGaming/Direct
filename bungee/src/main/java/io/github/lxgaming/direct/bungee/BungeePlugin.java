@@ -151,12 +151,12 @@ public class BungeePlugin extends Plugin implements Platform {
     }
     
     @Override
-    public void executeAsync(Runnable runnable) {
+    public void executeAsync(@NonNull Runnable runnable) {
         ProxyServer.getInstance().getScheduler().runAsync(getInstance(), runnable);
     }
     
     @Override
-    public boolean executeCommand(String command) {
+    public boolean executeCommand(@NonNull String command) {
         return ProxyServer.getInstance().getPluginManager().dispatchCommand(new DirectCommandSender(), command);
     }
     
