@@ -17,6 +17,7 @@
 package io.github.lxgaming.direct.common.entity;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Set;
 
@@ -56,19 +57,19 @@ public class Server {
         this.port = port;
     }
     
-    public @NonNull Set<String> getDirectConnects() {
+    public @Nullable Set<String> getDirectConnects() {
         return directConnects;
     }
     
-    public void setDirectConnects(@NonNull Set<String> directConnects) {
+    public void setDirectConnects(@Nullable Set<String> directConnects) {
         this.directConnects = directConnects;
     }
     
-    public @NonNull Set<Integer> getProtocolVersions() {
+    public @Nullable Set<Integer> getProtocolVersions() {
         return protocolVersions;
     }
     
-    public void setProtocolVersions(@NonNull Set<Integer> protocolVersions) {
+    public void setProtocolVersions(@Nullable Set<Integer> protocolVersions) {
         this.protocolVersions = protocolVersions;
     }
     

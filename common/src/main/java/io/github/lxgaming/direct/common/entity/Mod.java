@@ -17,6 +17,7 @@
 package io.github.lxgaming.direct.common.entity;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Set;
 
@@ -42,7 +43,7 @@ public class Mod {
         this.name = name;
     }
     
-    public @NonNull Set<String> getExecution() {
+    public @Nullable Set<String> getExecution() {
         return execution;
     }
     

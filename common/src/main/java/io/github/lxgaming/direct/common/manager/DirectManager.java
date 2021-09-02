@@ -95,6 +95,10 @@ public final class DirectManager {
     }
     
     public static void buildForcedHosts(Server server) {
+        if (server.getDirectConnects() == null) {
+            return;
+        }
+        
         for (String directConnect : server.getDirectConnects()) {
             String value = FORCED_HOSTS.putIfAbsent(directConnect, server.getName());
             if (StringUtils.isNotBlank(value)) {
@@ -111,7 +115,7 @@ public final class DirectManager {
         List<Mod> detectedMods = Lists.newArrayList();
         for (Map.Entry<String, String> entry : mods.entrySet()) {
             Mod mod = getMod(entry.getKey());
-            if (mod == null || mod.getExecution().isEmpty()) {
+            if (mod == null || mod.getExecution() == null || mod.getExecution().isEmpty()) {
                 continue;
             }
             
@@ -180,7 +184,7 @@ public final class DirectManager {
                 return mod;
             }
             
-            if (mod.getExecution().isEmpty()) {
+            if (mod.getExecution() == null || mod.getExecution().isEmpty()) {
                 iterator.remove();
             }
         }
@@ -197,7 +201,7 @@ public final class DirectManager {
     }
     
     public static boolean isProtocolSupported(Source source, Server server) {
-        return server.getProtocolVersions().isEmpty() || server.getProtocolVersions().contains(source.getProtocolVersion());
+        return server.getProtocolVersions() == null || server.getProtocolVersions().isEmpty() || server.getProtocolVersions().contains(source.getProtocolVersion());
     }
     
     public static Server getLobby(Source source) {

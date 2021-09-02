@@ -104,7 +104,9 @@ public class MySQLQuery implements Query {
                         
                         try {
                             String[] execution = Toolbox.GSON.fromJson(resultSet.getString("execution"), String[].class);
-                            mod.setExecution(Sets.newHashSet(execution));
+                            if (execution != null) {
+                                mod.setExecution(Sets.newHashSet(execution));
+                            }
                         } catch (JsonParseException ex) {
                             Direct.getInstance().getLogger().error("Encountered an error while parsing execution for {} ({})", mod.getName(), mod.getId(), ex);
                             mod.setExecution(Sets.newHashSet());
@@ -137,7 +139,9 @@ public class MySQLQuery implements Query {
                         
                         try {
                             String[] directConnects = Toolbox.GSON.fromJson(resultSet.getString("direct_connects"), String[].class);
-                            server.setDirectConnects(Sets.newHashSet(directConnects));
+                            if (directConnects != null) {
+                                server.setDirectConnects(Sets.newHashSet(directConnects));
+                            }
                         } catch (JsonParseException ex) {
                             Direct.getInstance().getLogger().error("Encountered an error while parsing directConnects for {}", server.getName(), ex);
                             server.setDirectConnects(Sets.newHashSet());
@@ -145,7 +149,9 @@ public class MySQLQuery implements Query {
                         
                         try {
                             Integer[] protocolVersions = Toolbox.GSON.fromJson(resultSet.getString("protocol_versions"), Integer[].class);
-                            server.setProtocolVersions(Sets.newHashSet(protocolVersions));
+                            if (protocolVersions != null) {
+                                server.setProtocolVersions(Sets.newHashSet(protocolVersions));
+                            }
                         } catch (JsonParseException ex) {
                             Direct.getInstance().getLogger().error("Encountered an error while parsing protocolVersions for {}", server.getName(), ex);
                             server.setProtocolVersions(Sets.newHashSet());
