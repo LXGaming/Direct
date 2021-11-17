@@ -83,7 +83,7 @@ public class BungeeListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onServerConnected(ServerConnectedEvent event) {
-        DirectManager.checkMods(new BungeeSource(event.getPlayer()), event.getPlayer().getModList());
+        DirectManager.checkMods(new BungeeSource(event.getPlayer()), event.getPlayer().getModList().keySet());
     }
     
     @EventHandler(priority = EventPriority.LOWEST)

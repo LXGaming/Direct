@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public final class DirectManager {
     
@@ -107,14 +108,14 @@ public final class DirectManager {
         }
     }
     
-    public static void checkMods(Source source, Map<String, String> mods) {
+    public static void checkMods(Source source, Set<String> modIds) {
         if (source.hasPermission("direct.bypass.mods")) {
             return;
         }
         
         List<Mod> detectedMods = Lists.newArrayList();
-        for (Map.Entry<String, String> entry : mods.entrySet()) {
-            Mod mod = getMod(entry.getKey());
+        for (String modId : modIds) {
+            Mod mod = getMod(modId);
             if (mod == null || mod.getExecution() == null || mod.getExecution().isEmpty()) {
                 continue;
             }
@@ -148,7 +149,7 @@ public final class DirectManager {
         
         if (Direct.getInstance().getConfig().map(Config::getLogCategory).map(LogCategory::isDetectionModList).orElse(false)) {
             Direct.getPlatform().executeAsync(() -> {
-                Direct.getInstance().getStorage().getQuery().createLog(source.getUniqueId(), "MODLIST", new Gson().toJson(mods));
+                Direct.getInstance().getStorage().getQuery().createLog(source.getUniqueId(), "MODLIST", new Gson().toJson(modIds));
             });
         }
         

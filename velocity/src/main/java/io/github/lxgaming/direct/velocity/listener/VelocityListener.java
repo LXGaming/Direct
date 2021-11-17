@@ -16,7 +16,7 @@
 
 package io.github.lxgaming.direct.velocity.listener;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
@@ -37,7 +37,7 @@ import io.github.lxgaming.direct.velocity.VelocityPlugin;
 import io.github.lxgaming.direct.velocity.entity.VelocitySource;
 import io.github.lxgaming.direct.velocity.util.VelocityToolbox;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class VelocityListener {
@@ -98,9 +98,9 @@ public class VelocityListener {
     
     @Subscribe(order = PostOrder.EARLY)
     public void onPlayerModInfo(PlayerModInfoEvent event) {
-        Map<String, String> mods = Maps.newHashMap();
+        Set<String> mods = Sets.newHashSet();
         for (ModInfo.Mod mod : event.getModInfo().getMods()) {
-            mods.put(mod.getId(), mod.getVersion());
+            mods.add(mod.getId());
         }
         
         DirectManager.checkMods(new VelocitySource(event.getPlayer()), mods);
