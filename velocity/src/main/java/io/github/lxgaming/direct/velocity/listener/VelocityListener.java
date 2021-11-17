@@ -31,6 +31,7 @@ import io.github.lxgaming.direct.common.entity.Locale;
 import io.github.lxgaming.direct.common.entity.Server;
 import io.github.lxgaming.direct.common.entity.Source;
 import io.github.lxgaming.direct.common.manager.DirectManager;
+import io.github.lxgaming.direct.common.manager.LocaleManager;
 import io.github.lxgaming.direct.common.util.StringUtils;
 import io.github.lxgaming.direct.common.util.text.adapter.LocaleAdapter;
 import io.github.lxgaming.direct.velocity.VelocityPlugin;
@@ -115,7 +116,7 @@ public class VelocityListener {
             if (kickReason.equalsIgnoreCase("Timed out")) {
                 Server server = VelocityToolbox.getServer(event.getServer());
                 if (server != null && server.isLobby()) {
-                    LocaleAdapter.disconnect(source, Locale.MESSAGE_DISCONNECT, kickReason);
+                    event.setResult(KickedFromServerEvent.DisconnectPlayer.create(LocaleManager.serialize(Locale.MESSAGE_DISCONNECT, kickReason)));
                     return;
                 }
             }
@@ -123,6 +124,11 @@ public class VelocityListener {
         
         RegisteredServer server = VelocityToolbox.getLobby(source);
         if (server != null) {
+            if (event.getServer() == server) {
+                event.setResult(KickedFromServerEvent.DisconnectPlayer.create(LocaleManager.serialize(Locale.MESSAGE_DISCONNECT, kickReason)));
+                return;
+            }
+            
             event.setResult(KickedFromServerEvent.RedirectPlayer.create(server));
             
             VelocityPlugin.getInstance().getProxy().getScheduler()
@@ -135,6 +141,6 @@ public class VelocityListener {
             return;
         }
         
-        LocaleAdapter.disconnect(source, Locale.MESSAGE_DISCONNECT, kickReason);
+        event.setResult(KickedFromServerEvent.DisconnectPlayer.create(LocaleManager.serialize(Locale.MESSAGE_DISCONNECT, kickReason)));
     }
 }
