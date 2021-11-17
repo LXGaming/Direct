@@ -39,6 +39,6 @@
   "message.inactive": "&b{} &8is not active",
   "message.incompatible": "&b{} &8does not support your Minecraft version",
   "message.kick": "&8You have been moved to &b{}&8: &f{}",
-  "message.removed": "&b{} &8is no longer publicly available",
+  "message.removed": "&8This server is no longer publicly available",
   "message.restricted": "&8You do not have permission to join &b{}"
 }
