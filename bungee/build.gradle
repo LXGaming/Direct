@@ -20,7 +20,7 @@ dependencies {
         exclude(module: "guava")
     }
     compileOnly("net.md-5:bungeecord-api:${bungeecordVersion}")
-    shadow("net.kyori:adventure-text-serializer-bungeecord:4.0.0-SNAPSHOT") {
+    shadow("net.kyori:adventure-text-serializer-bungeecord:4.0.0") {
         transitive = false
     }
     shadow("net.kyori:adventure-text-serializer-gson:${adventureVersion}") {
